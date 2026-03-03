@@ -34,7 +34,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     settings: {
         defaultEditMode: 'markdown',
         autoSaveInterval: 3000,
-        capturePageByDefault: true,
+        capturePageByDefault: false,
         theme: 'auto',
     },
     isLoading: false,

@@ -63,7 +63,16 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 
         if (capturePageContext) {
             try {
-                const [tab] = await chrome.tabs.query({ active: true, lastFocusedWindow: true });
+                // 取得所有視窗的 active tabs，過濾掉擴充功能／瀏覽器內部頁面
+                const tabs = await chrome.tabs.query({ active: true });
+                const tab = tabs.find(
+                    (t) =>
+                        t.url &&
+                        !t.url.startsWith('chrome://') &&
+                        !t.url.startsWith('chrome-extension://') &&
+                        !t.url.startsWith('about:') &&
+                        !t.url.startsWith('edge://')
+                );
                 if (tab) {
                     pageContext = {
                         url: tab.url || '',
@@ -77,7 +86,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         }
 
         return note
-            ? { ...note, title, content, tags, editMode, updatedAt: Date.now() }
+            ? { ...note, title, content, tags, editMode, pageContext, updatedAt: Date.now() }
             : {
                 id: '',
                 title,
@@ -142,7 +151,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             </div>
 
             {/* 編輯區域 */}
-            <div className="flex-1 overflow-hidden min-h-0">
+            <div className="flex-1 overflow-y-auto min-h-0">
                 {editMode === 'markdown' ? (
                     <SimpleMDE
                         value={content}

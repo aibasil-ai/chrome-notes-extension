@@ -25,3 +25,28 @@ html.full-height #root {
 * {
   box-sizing: border-box;
 }
+
+/* EasyMDE (SimpleMDE) 編輯器 — 邊框比照純文字模式 */
+
+/* 工具列固定在頂端，不隨內容捲動 */
+.EasyMDEContainer .editor-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: white;
+}
+
+/* CodeMirror 編輯區：邊框比照純文字的 textarea */
+.EasyMDEContainer .CodeMirror {
+  border: 1px solid #d1d5db;
+  /* border-gray-300 */
+  border-radius: 0.375rem;
+  /* rounded-md */
+}
+
+/* 聚焦時的樣式 */
+.EasyMDEContainer .CodeMirror-focused {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  border-color: #3b82f6;
+}
