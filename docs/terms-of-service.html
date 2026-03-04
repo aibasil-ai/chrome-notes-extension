@@ -61,30 +61,7 @@
       background: var(--surface);
     }
 
-    .topbar {
-      padding: 1rem 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 0.75rem;
-    }
-
-    .brand {
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .status {
-      font-size: 0.78rem;
-      color: var(--muted);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-    }
-
     .hero {
-      margin-top: 1rem;
       padding: 1.4rem 1.25rem;
     }
 
@@ -360,7 +337,6 @@
         padding: 0.65rem;
       }
 
-      .topbar,
       .hero,
       .section,
       .cta,
@@ -370,14 +346,6 @@
 
       .hero-meta {
         grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 480px) {
-
-      .brand,
-      .status {
-        font-size: 0.72rem;
       }
     }
 
@@ -398,11 +366,6 @@
 
 <body>
   <div class="page">
-    <header class="topbar frame">
-      <p class="brand">輕筆記 / 文件中心</p>
-      <p class="status">服務條款 v1.0</p>
-    </header>
-
     <main>
       <section class="hero frame" aria-labelledby="tos-title">
         <div class="swiss-grid">
