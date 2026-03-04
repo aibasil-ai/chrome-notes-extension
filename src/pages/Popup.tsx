@@ -88,7 +88,7 @@ const PopupApp: React.FC = () => {
                 <>
                     {/* 頂部標題 + 搜尋列 */}
                     <div className="p-3 border-b bg-gray-50">
-                        <h1 className="text-lg font-bold text-gray-800 mb-2">📝 筆記</h1>
+                        <h1 className="text-lg font-bold text-gray-800 mb-2">📝 輕筆記</h1>
                         <SearchBar
                             searchQuery={searchQuery}
                             onSearchChange={setSearchQuery}
