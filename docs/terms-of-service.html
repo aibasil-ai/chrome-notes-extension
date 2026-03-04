@@ -1,567 +1,562 @@
 <!doctype html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>輕筆記服務條款</title>
-    <meta
-      name="description"
-      content="輕筆記 Chrome 擴充功能服務條款，說明使用規範、權利義務、免責聲明與責任限制。"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --bg: #fafafa;
-        --surface: #ffffff;
-        --line: #d4d4d8;
-        --text: #09090b;
-        --muted: #3f3f46;
-        --cta: #ec4899;
-        --ink: #18181b;
-        --max: 1180px;
-      }
 
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>輕筆記服務條款</title>
+  <meta name="description" content="輕筆記 Chrome 擴充功能服務條款，說明使用規範、權利義務、免責聲明與責任限制。" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --line: #d4d4d8;
+      --text: #09090b;
+      --muted: #3f3f46;
+      --cta: #ec4899;
+      --ink: #18181b;
+      --max: 1180px;
+    }
 
-      html {
-        scroll-behavior: smooth;
-      }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-      body {
-        min-height: 100vh;
-        font-family: "Inter", sans-serif;
-        color: var(--text);
-        background: var(--bg);
-        line-height: 1.5;
-        padding: 1rem;
-      }
+    html {
+      scroll-behavior: smooth;
+    }
 
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
+    body {
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      padding: 1rem;
+    }
 
-      ul {
-        list-style: none;
-      }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-      .page {
-        width: min(var(--max), 100%);
-        margin: 0 auto;
-      }
+    ul {
+      list-style: none;
+    }
 
-      .frame {
-        border: 1px solid var(--line);
-        background: var(--surface);
-      }
+    .page {
+      width: min(var(--max), 100%);
+      margin: 0 auto;
+    }
 
-      .topbar {
-        padding: 1rem 1.25rem;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 0.75rem;
-      }
+    .frame {
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
 
-      .brand {
-        font-size: 0.78rem;
-        font-weight: 700;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-      }
+    .topbar {
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+    }
 
-      .status {
-        font-size: 0.78rem;
-        color: var(--muted);
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-      }
+    .brand {
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
 
-      .hero {
-        margin-top: 1rem;
-        padding: 1.4rem 1.25rem;
-      }
+    .status {
+      font-size: 0.78rem;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
 
-      .swiss-grid {
-        display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        gap: 1rem;
-      }
+    .hero {
+      margin-top: 1rem;
+      padding: 1.4rem 1.25rem;
+    }
 
+    .swiss-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .hero-copy {
+      grid-column: 1 / 9;
+      border-top: 2px solid var(--ink);
+      padding-top: 0.8rem;
+    }
+
+    .kicker {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.65rem;
+    }
+
+    .hero-title {
+      font-size: clamp(1.8rem, 5vw, 3.3rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      max-width: 18ch;
+    }
+
+    .hero-desc {
+      margin-top: 0.9rem;
+      font-size: clamp(1rem, 1.8vw, 1.15rem);
+      color: var(--muted);
+      max-width: 62ch;
+    }
+
+    .hero-actions {
+      margin-top: 1.1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--ink);
+      padding: 0.58rem 0.9rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition:
+        transform 180ms ease-out,
+        background-color 180ms ease-out,
+        color 180ms ease-out;
+    }
+
+    .btn-primary {
+      background: var(--cta);
+      color: #ffffff;
+      border-color: var(--cta);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid #0ea5e9;
+      outline-offset: 2px;
+    }
+
+    .hero-meta {
+      grid-column: 9 / 13;
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .meta-card {
+      border: 1px solid var(--line);
+      padding: 0.85rem;
+    }
+
+    .meta-card dt {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.28rem;
+    }
+
+    .meta-card dd {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .section {
+      margin-top: 1rem;
+      padding: 1.2rem 1.25rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.7rem;
+    }
+
+    .section-note {
+      color: var(--muted);
+      max-width: 70ch;
+      margin-bottom: 1rem;
+    }
+
+    .terms-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .terms-block {
+      grid-column: span 6;
+      border: 1px solid var(--line);
+      padding: 0.9rem;
+      transition:
+        border-color 180ms ease-out,
+        transform 180ms ease-out;
+    }
+
+    .terms-block:hover {
+      border-color: var(--ink);
+      transform: translateY(-1px);
+    }
+
+    .terms-block h3 {
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.45rem;
+    }
+
+    .terms-block p {
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .terms-points {
+      margin-top: 0.55rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .terms-points li {
+      color: var(--muted);
+      font-size: 0.95rem;
+      padding-left: 1.05rem;
+      position: relative;
+    }
+
+    .terms-points li::before {
+      content: "";
+      width: 0.36rem;
+      height: 0.36rem;
+      border-radius: 999px;
+      background: var(--ink);
+      position: absolute;
+      top: 0.48rem;
+      left: 0;
+    }
+
+    .notice {
+      margin-top: 0.75rem;
+      border: 1px solid var(--line);
+      padding: 0.85rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .cta {
+      margin-top: 1rem;
+      padding: 1.2rem 1.25rem;
+      background: var(--ink);
+      color: #f4f4f5;
+    }
+
+    .cta-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .cta-copy {
+      grid-column: 1 / 9;
+    }
+
+    .cta-title {
+      font-size: clamp(1.25rem, 2.2vw, 1.9rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.55rem;
+    }
+
+    .cta-copy p {
+      color: #d4d4d8;
+    }
+
+    .cta-link {
+      grid-column: 9 / 13;
+      justify-self: end;
+    }
+
+    .cta-link .btn {
+      border-color: #ffffff;
+      color: #ffffff;
+      background: transparent;
+    }
+
+    .cta-link .btn:hover {
+      background: #ffffff;
+      color: #111827;
+    }
+
+    .footer {
+      margin-top: 1rem;
+      padding: 1rem 1.25rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    @media (max-width: 1024px) {
       .hero-copy {
-        grid-column: 1 / 9;
-        border-top: 2px solid var(--ink);
-        padding-top: 0.8rem;
-      }
-
-      .kicker {
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--muted);
-        margin-bottom: 0.65rem;
-      }
-
-      .hero-title {
-        font-size: clamp(1.8rem, 5vw, 3.3rem);
-        font-weight: 800;
-        line-height: 1.08;
-        letter-spacing: -0.03em;
-        max-width: 18ch;
-      }
-
-      .hero-desc {
-        margin-top: 0.9rem;
-        font-size: clamp(1rem, 1.8vw, 1.15rem);
-        color: var(--muted);
-        max-width: 62ch;
-      }
-
-      .hero-actions {
-        margin-top: 1.1rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-      }
-
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--ink);
-        padding: 0.58rem 0.9rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition:
-          transform 180ms ease-out,
-          background-color 180ms ease-out,
-          color 180ms ease-out;
-      }
-
-      .btn-primary {
-        background: var(--cta);
-        color: #ffffff;
-        border-color: var(--cta);
-      }
-
-      .btn-secondary {
-        background: #ffffff;
-        color: var(--ink);
-      }
-
-      .btn:hover {
-        transform: translateY(-1px);
-      }
-
-      .btn:focus-visible {
-        outline: 3px solid #0ea5e9;
-        outline-offset: 2px;
+        grid-column: 1 / 13;
       }
 
       .hero-meta {
-        grid-column: 9 / 13;
-        display: grid;
-        gap: 0.6rem;
-      }
-
-      .meta-card {
-        border: 1px solid var(--line);
-        padding: 0.85rem;
-      }
-
-      .meta-card dt {
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-        margin-bottom: 0.28rem;
-      }
-
-      .meta-card dd {
-        font-size: 1.05rem;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-      }
-
-      .section {
-        margin-top: 1rem;
-        padding: 1.2rem 1.25rem;
-      }
-
-      .section-title {
-        font-size: clamp(1.2rem, 2vw, 1.6rem);
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.7rem;
-      }
-
-      .section-note {
-        color: var(--muted);
-        max-width: 70ch;
-        margin-bottom: 1rem;
-      }
-
-      .terms-grid {
-        display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        gap: 0.75rem;
+        grid-column: 1 / 13;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .terms-block {
-        grid-column: span 6;
-        border: 1px solid var(--line);
-        padding: 0.9rem;
-        transition:
-          border-color 180ms ease-out,
-          transform 180ms ease-out;
+        grid-column: span 12;
       }
 
-      .terms-block:hover {
-        border-color: var(--ink);
-        transform: translateY(-1px);
-      }
-
-      .terms-block h3 {
-        font-size: 0.86rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        margin-bottom: 0.45rem;
-      }
-
-      .terms-block p {
-        color: var(--muted);
-        font-size: 0.98rem;
-      }
-
-      .terms-points {
-        margin-top: 0.55rem;
-        display: grid;
-        gap: 0.45rem;
-      }
-
-      .terms-points li {
-        color: var(--muted);
-        font-size: 0.95rem;
-        padding-left: 1.05rem;
-        position: relative;
-      }
-
-      .terms-points li::before {
-        content: "";
-        width: 0.36rem;
-        height: 0.36rem;
-        border-radius: 999px;
-        background: var(--ink);
-        position: absolute;
-        top: 0.48rem;
-        left: 0;
-      }
-
-      .notice {
-        margin-top: 0.75rem;
-        border: 1px solid var(--line);
-        padding: 0.85rem;
-        font-size: 0.95rem;
-        color: var(--muted);
-      }
-
-      .cta {
-        margin-top: 1rem;
-        padding: 1.2rem 1.25rem;
-        background: var(--ink);
-        color: #f4f4f5;
-      }
-
-      .cta-grid {
-        display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .cta-copy {
-        grid-column: 1 / 9;
-      }
-
-      .cta-title {
-        font-size: clamp(1.25rem, 2.2vw, 1.9rem);
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.55rem;
-      }
-
-      .cta-copy p {
-        color: #d4d4d8;
+      .cta-copy,
+      .cta-link {
+        grid-column: 1 / 13;
       }
 
       .cta-link {
-        grid-column: 9 / 13;
-        justify-self: end;
+        justify-self: start;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 0.65rem;
       }
 
-      .cta-link .btn {
-        border-color: #ffffff;
-        color: #ffffff;
-        background: transparent;
-      }
-
-      .cta-link .btn:hover {
-        background: #ffffff;
-        color: #111827;
-      }
-
+      .topbar,
+      .hero,
+      .section,
+      .cta,
       .footer {
-        margin-top: 1rem;
-        padding: 1rem 1.25rem;
-        font-size: 0.85rem;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
+        padding: 0.9rem;
       }
 
-      @media (max-width: 1024px) {
-        .hero-copy {
-          grid-column: 1 / 13;
-        }
+      .hero-meta {
+        grid-template-columns: 1fr;
+      }
+    }
 
-        .hero-meta {
-          grid-column: 1 / 13;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
+    @media (max-width: 480px) {
 
-        .terms-block {
-          grid-column: span 12;
-        }
+      .brand,
+      .status {
+        font-size: 0.72rem;
+      }
+    }
 
-        .cta-copy,
-        .cta-link {
-          grid-column: 1 / 13;
-        }
-
-        .cta-link {
-          justify-self: start;
-        }
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
       }
 
-      @media (max-width: 768px) {
-        body {
-          padding: 0.65rem;
-        }
-
-        .topbar,
-        .hero,
-        .section,
-        .cta,
-        .footer {
-          padding: 0.9rem;
-        }
-
-        .hero-meta {
-          grid-template-columns: 1fr;
-        }
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
       }
+    }
+  </style>
+</head>
 
-      @media (max-width: 480px) {
-        .brand,
-        .status {
-          font-size: 0.72rem;
-        }
-      }
+<body>
+  <div class="page">
+    <header class="topbar frame">
+      <p class="brand">輕筆記 / 文件中心</p>
+      <p class="status">服務條款 v1.0</p>
+    </header>
 
-      @media (prefers-reduced-motion: reduce) {
-        html {
-          scroll-behavior: auto;
-        }
-
-        *,
-        *::before,
-        *::after {
-          animation: none !important;
-          transition: none !important;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="page">
-      <header class="topbar frame">
-        <p class="brand">輕筆記 / 文件中心</p>
-        <p class="status">服務條款 v1.0</p>
-      </header>
-
-      <main>
-        <section class="hero frame" aria-labelledby="tos-title">
-          <div class="swiss-grid">
-            <div class="hero-copy">
-              <p class="kicker">法律文件</p>
-              <h1 id="tos-title" class="hero-title">輕筆記服務條款</h1>
-              <p class="hero-desc">
-                本服務條款說明你在使用「輕筆記」Chrome
-                擴充功能時，雙方的權利義務、責任範圍與使用規範。當你安裝或使用本服務，即表示你已閱讀、理解並同意遵守本條款。
-              </p>
-              <div class="hero-actions">
-                <a class="btn btn-primary" href="#terms">閱讀服務條款</a>
-                <a class="btn btn-secondary" href="./index.html">返回文件首頁</a>
-              </div>
-            </div>
-
-            <dl class="hero-meta" aria-label="條款摘要">
-              <div class="meta-card">
-                <dt>生效日期</dt>
-                <dd>2026 年 3 月 4 日</dd>
-              </div>
-              <div class="meta-card">
-                <dt>適用範圍</dt>
-                <dd>輕筆記 Chrome 擴充功能</dd>
-              </div>
-              <div class="meta-card">
-                <dt>最後更新</dt>
-                <dd>2026 年 3 月 4 日</dd>
-              </div>
-            </dl>
-          </div>
-        </section>
-
-        <section id="terms" class="section frame" aria-labelledby="terms-title">
-          <h2 id="terms-title" class="section-title">服務條款內容</h2>
-          <p class="section-note">
-            請在使用本服務前詳讀下列條款。若你不同意任一條款，請停止使用本擴充功能並移除相關資料。
-          </p>
-
-          <div class="terms-grid">
-            <article class="terms-block">
-              <h3>1. 接受條款</h3>
-              <p>你安裝、啟用或持續使用本服務，即視為同意本服務條款與相關政策。</p>
-              <ul class="terms-points">
-                <li>你應具備合法使用本服務的權利與能力。</li>
-                <li>若你代表組織使用，表示你有權代表該組織同意條款。</li>
-              </ul>
-            </article>
-
-            <article class="terms-block">
-              <h3>2. 服務內容</h3>
-              <p>本服務提供筆記建立、編輯、搜尋、標籤管理與資料匯出匯入功能。</p>
-              <ul class="terms-points">
-                <li>服務可能依版本調整功能與介面，不保證永久不變。</li>
-                <li>部分功能仰賴 Chrome 平台能力與政策限制。</li>
-              </ul>
-            </article>
-
-            <article class="terms-block">
-              <h3>3. 使用者義務</h3>
-              <p>你同意以合法方式使用本服務，且不得從事侵害他人權益之行為。</p>
-              <ul class="terms-points">
-                <li>不得利用本服務散布非法、侵權或惡意內容。</li>
-                <li>不得嘗試破壞、逆向或干擾服務正常運作。</li>
-              </ul>
-            </article>
-
-            <article class="terms-block">
-              <h3>4. 資料與同步</h3>
-              <p>你的內容主要儲存在瀏覽器環境，若啟用同步功能，資料將依 Chrome Sync 機制處理。</p>
-              <ul class="terms-points">
-                <li>你應自行管理重要資料備份，避免不可逆資料損失。</li>
-                <li>第三方平台造成之同步延遲或異常，不在我們可完全控制範圍內。</li>
-              </ul>
-            </article>
-
-            <article class="terms-block">
-              <h3>5. 智慧財產權</h3>
-              <p>本服務相關程式、介面設計與文件內容，除另有標示外，均受智慧財產權法令保護。</p>
-              <ul class="terms-points">
-                <li>未經授權，不得重製、散布、改作或商業利用本服務內容。</li>
-                <li>你仍保有你自行輸入內容之權利與責任。</li>
-              </ul>
-            </article>
-
-            <article class="terms-block">
-              <h3>6. 免責聲明</h3>
-              <p>本服務依現況提供，對於特定用途適用性、不中斷性或無錯誤性不作絕對保證。</p>
-              <ul class="terms-points">
-                <li>因網路、裝置、瀏覽器或第三方服務異常造成之影響，我們不負擔保責任。</li>
-                <li>你應自行評估使用風險並建立必要備援措施。</li>
-              </ul>
-            </article>
-
-            <article class="terms-block">
-              <h3>7. 責任限制</h3>
-              <p>於法律允許範圍內，我們對間接、附帶或衍生性損害不負賠償責任。</p>
-              <ul class="terms-points">
-                <li>若依法仍須負責，責任上限以你就本服務已支付之對價為上限。</li>
-                <li>若你未支付任何對價，責任上限以法律允許之最低限度為準。</li>
-              </ul>
-            </article>
-
-            <article class="terms-block">
-              <h3>8. 條款修訂與終止</h3>
-              <p>我們得因法令、服務調整或營運需求更新本條款，並於本頁公告最新版本。</p>
-              <ul class="terms-points">
-                <li>更新後條款自公告日起生效；你可隨時停止使用本服務。</li>
-                <li>若你違反條款，我們得限制或終止你使用本服務。</li>
-              </ul>
-            </article>
-
-            <article class="terms-block">
-              <h3>9. 準據法與管轄</h3>
-              <p>本條款之解釋與適用，依中華民國（臺灣）法律處理。</p>
-              <ul class="terms-points">
-                <li>若發生爭議，雙方應先以誠信原則協商解決。</li>
-                <li>協商不成時，以臺灣臺北地方法院（台北市）為第一審管轄法院。</li>
-              </ul>
-            </article>
-
-            <article class="terms-block">
-              <h3>10. 聯絡方式</h3>
-              <p>若你對本條款有任何疑問，請透過 Chrome 線上應用程式商店中的開發者資訊聯絡我們。</p>
-              <ul class="terms-points">
-                <li>建議聯絡時提供問題描述、版本與發生時間，以利處理。</li>
-                <li>我們將在合理期間內回覆與處理。</li>
-              </ul>
-            </article>
-          </div>
-
-          <p class="notice">
-            你理解並同意：若繼續使用本服務，即代表接受本條款最新版本。請定期檢視本頁以掌握最新內容。
-          </p>
-        </section>
-
-        <section id="contact" class="cta frame" aria-labelledby="contact-title">
-          <div class="cta-grid">
-            <div class="cta-copy">
-              <h2 id="contact-title" class="cta-title">條款疑問與支援聯絡</h2>
-              <p>
-                若你對服務條款、權利義務或使用限制有疑問，請透過 Chrome 線上應用程式商店與我們聯繫。
-              </p>
-            </div>
-            <div class="cta-link">
-              <a
-                class="btn"
-                href="https://chromewebstore.google.com/"
-                target="_blank"
-                rel="noreferrer noopener"
-                >前往 Chrome 線上應用程式商店</a
-              >
+    <main>
+      <section class="hero frame" aria-labelledby="tos-title">
+        <div class="swiss-grid">
+          <div class="hero-copy">
+            <p class="kicker">法律文件</p>
+            <h1 id="tos-title" class="hero-title">輕筆記服務條款</h1>
+            <p class="hero-desc">
+              本服務條款說明你在使用「輕筆記」Chrome
+              擴充功能時，雙方的權利義務、責任範圍與使用規範。當你安裝或使用本服務，即表示你已閱讀、理解並同意遵守本條款。
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#terms">閱讀服務條款</a>
+              <a class="btn btn-secondary" href="./index.html">返回文件首頁</a>
             </div>
           </div>
-        </section>
-      </main>
 
-      <footer class="footer frame">版權所有 © 2026 AIbasil All rights reserved.</footer>
-    </div>
-  </body>
+          <dl class="hero-meta" aria-label="條款摘要">
+            <div class="meta-card">
+              <dt>生效日期</dt>
+              <dd>2026 年 3 月 4 日</dd>
+            </div>
+            <div class="meta-card">
+              <dt>適用範圍</dt>
+              <dd>輕筆記 Chrome 擴充功能</dd>
+            </div>
+            <div class="meta-card">
+              <dt>最後更新</dt>
+              <dd>2026 年 3 月 4 日</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section id="terms" class="section frame" aria-labelledby="terms-title">
+        <h2 id="terms-title" class="section-title">服務條款內容</h2>
+        <p class="section-note">
+          請在使用本服務前詳讀下列條款。若你不同意任一條款，請停止使用本擴充功能並移除相關資料。
+        </p>
+
+        <div class="terms-grid">
+          <article class="terms-block">
+            <h3>1. 接受條款</h3>
+            <p>你安裝、啟用或持續使用本服務，即視為同意本服務條款與相關政策。</p>
+            <ul class="terms-points">
+              <li>你應具備合法使用本服務的權利與能力。</li>
+              <li>若你代表組織使用，表示你有權代表該組織同意條款。</li>
+            </ul>
+          </article>
+
+          <article class="terms-block">
+            <h3>2. 服務內容</h3>
+            <p>本服務提供筆記建立、編輯、搜尋、標籤管理與資料匯出匯入功能。</p>
+            <ul class="terms-points">
+              <li>服務可能依版本調整功能與介面，不保證永久不變。</li>
+              <li>部分功能仰賴 Chrome 平台能力與政策限制。</li>
+            </ul>
+          </article>
+
+          <article class="terms-block">
+            <h3>3. 使用者義務</h3>
+            <p>你同意以合法方式使用本服務，且不得從事侵害他人權益之行為。</p>
+            <ul class="terms-points">
+              <li>不得利用本服務散布非法、侵權或惡意內容。</li>
+              <li>不得嘗試破壞、逆向或干擾服務正常運作。</li>
+            </ul>
+          </article>
+
+          <article class="terms-block">
+            <h3>4. 資料與同步</h3>
+            <p>你的內容主要儲存在瀏覽器環境，若啟用同步功能，資料將依 Chrome Sync 機制處理。</p>
+            <ul class="terms-points">
+              <li>你應自行管理重要資料備份，避免不可逆資料損失。</li>
+              <li>第三方平台造成之同步延遲或異常，不在我們可完全控制範圍內。</li>
+            </ul>
+          </article>
+
+          <article class="terms-block">
+            <h3>5. 智慧財產權</h3>
+            <p>本服務相關程式、介面設計與文件內容，除另有標示外，均受智慧財產權法令保護。</p>
+            <ul class="terms-points">
+              <li>未經授權，不得重製、散布、改作或商業利用本服務內容。</li>
+              <li>你仍保有你自行輸入內容之權利與責任。</li>
+            </ul>
+          </article>
+
+          <article class="terms-block">
+            <h3>6. 免責聲明</h3>
+            <p>本服務依現況提供，對於特定用途適用性、不中斷性或無錯誤性不作絕對保證。</p>
+            <ul class="terms-points">
+              <li>因網路、裝置、瀏覽器或第三方服務異常造成之影響，我們不負擔保責任。</li>
+              <li>你應自行評估使用風險並建立必要備援措施。</li>
+            </ul>
+          </article>
+
+          <article class="terms-block">
+            <h3>7. 責任限制</h3>
+            <p>於法律允許範圍內，我們對間接、附帶或衍生性損害不負賠償責任。</p>
+            <ul class="terms-points">
+              <li>若依法仍須負責，責任上限以你就本服務已支付之對價為上限。</li>
+              <li>若你未支付任何對價，責任上限以法律允許之最低限度為準。</li>
+            </ul>
+          </article>
+
+          <article class="terms-block">
+            <h3>8. 條款修訂與終止</h3>
+            <p>我們得因法令、服務調整或營運需求更新本條款，並於本頁公告最新版本。</p>
+            <ul class="terms-points">
+              <li>更新後條款自公告日起生效；你可隨時停止使用本服務。</li>
+              <li>若你違反條款，我們得限制或終止你使用本服務。</li>
+            </ul>
+          </article>
+
+          <article class="terms-block">
+            <h3>9. 準據法與管轄</h3>
+            <p>本條款之解釋與適用，依中華民國（臺灣）法律處理。</p>
+            <ul class="terms-points">
+              <li>若發生爭議，雙方應先以誠信原則協商解決。</li>
+              <li>協商不成時，以臺灣臺北地方法院（台北市）為第一審管轄法院。</li>
+            </ul>
+          </article>
+
+          <article class="terms-block">
+            <h3>10. 聯絡方式</h3>
+            <p>若你對本條款有任何疑問，請透過 Chrome 線上應用程式商店中的開發者資訊聯絡我們。</p>
+            <ul class="terms-points">
+              <li>建議聯絡時提供問題描述、版本與發生時間，以利處理。</li>
+              <li>我們將在合理期間內回覆與處理。</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="notice">
+          你理解並同意：若繼續使用本服務，即代表接受本條款最新版本。請定期檢視本頁以掌握最新內容。
+        </p>
+      </section>
+
+      <section id="contact" class="cta frame" aria-labelledby="contact-title">
+        <div class="cta-grid">
+          <div class="cta-copy">
+            <h2 id="contact-title" class="cta-title">條款疑問與支援聯絡</h2>
+            <p>
+              若你對服務條款、權利義務或使用限制有疑問，請透過 Chrome 線上應用程式商店與我們聯繫。
+            </p>
+          </div>
+          <div class="cta-link">
+            <a class="btn" href="https://chromewebstore.google.com/" target="_blank" rel="noreferrer noopener">前往 Chrome
+              線上應用程式商店</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer frame">版權所有 © 2026 AIbasil All rights reserved.</footer>
+  </div>
+</body>
+
 </html>

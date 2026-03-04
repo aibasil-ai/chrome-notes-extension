@@ -1,501 +1,495 @@
 <!doctype html>
 <html lang="zh-Hant">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>輕筆記隱私權政策</title>
-    <meta
-      name="description"
-      content="輕筆記 Chrome 擴充功能隱私權政策，說明資料蒐集、使用方式、同步機制與使用者權利。"
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      :root {
-        --bg: #fafafa;
-        --surface: #ffffff;
-        --line: #d4d4d8;
-        --text: #09090b;
-        --muted: #3f3f46;
-        --cta: #ec4899;
-        --ink: #18181b;
-        --max: 1180px;
-      }
 
-      * {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>輕筆記隱私權政策</title>
+  <meta name="description" content="輕筆記 Chrome 擴充功能隱私權政策，說明資料蒐集、使用方式、同步機制與使用者權利。" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --line: #d4d4d8;
+      --text: #09090b;
+      --muted: #3f3f46;
+      --cta: #ec4899;
+      --ink: #18181b;
+      --max: 1180px;
+    }
 
-      html {
-        scroll-behavior: smooth;
-      }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-      body {
-        min-height: 100vh;
-        font-family: "Inter", sans-serif;
-        color: var(--text);
-        background: var(--bg);
-        line-height: 1.5;
-        padding: 1rem;
-      }
+    html {
+      scroll-behavior: smooth;
+    }
 
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
+    body {
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      padding: 1rem;
+    }
 
-      ul {
-        list-style: none;
-      }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-      .page {
-        width: min(var(--max), 100%);
-        margin: 0 auto;
-      }
+    ul {
+      list-style: none;
+    }
 
-      .frame {
-        border: 1px solid var(--line);
-        background: var(--surface);
-      }
+    .page {
+      width: min(var(--max), 100%);
+      margin: 0 auto;
+    }
 
-      .hero {
-        padding: 1.4rem 1.25rem;
-      }
+    .frame {
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
 
-      .swiss-grid {
-        display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        gap: 1rem;
-      }
+    .hero {
+      padding: 1.4rem 1.25rem;
+    }
 
+    .swiss-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .hero-copy {
+      grid-column: 1 / 9;
+      border-top: 2px solid var(--ink);
+      padding-top: 0.8rem;
+    }
+
+    .kicker {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.65rem;
+    }
+
+    .hero-title {
+      font-size: clamp(1.8rem, 5vw, 3.3rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      max-width: 18ch;
+    }
+
+    .hero-desc {
+      margin-top: 0.9rem;
+      font-size: clamp(1rem, 1.8vw, 1.15rem);
+      color: var(--muted);
+      max-width: 62ch;
+    }
+
+    .hero-actions {
+      margin-top: 1.1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--ink);
+      padding: 0.58rem 0.9rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition:
+        transform 180ms ease-out,
+        background-color 180ms ease-out,
+        color 180ms ease-out;
+    }
+
+    .btn-primary {
+      background: var(--cta);
+      color: #ffffff;
+      border-color: var(--cta);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid #0ea5e9;
+      outline-offset: 2px;
+    }
+
+    .hero-meta {
+      grid-column: 9 / 13;
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .meta-card {
+      border: 1px solid var(--line);
+      padding: 0.85rem;
+    }
+
+    .meta-card dt {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.28rem;
+    }
+
+    .meta-card dd {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .section {
+      margin-top: 1rem;
+      padding: 1.2rem 1.25rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.7rem;
+    }
+
+    .section-note {
+      color: var(--muted);
+      max-width: 70ch;
+      margin-bottom: 1rem;
+    }
+
+    .policy-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.75rem;
+    }
+
+    .policy-block {
+      grid-column: span 6;
+      border: 1px solid var(--line);
+      padding: 0.9rem;
+      transition:
+        border-color 180ms ease-out,
+        transform 180ms ease-out;
+    }
+
+    .policy-block:hover {
+      border-color: var(--ink);
+      transform: translateY(-1px);
+    }
+
+    .policy-block h3 {
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.45rem;
+    }
+
+    .policy-block p {
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .policy-points {
+      margin-top: 0.55rem;
+      display: grid;
+      gap: 0.45rem;
+    }
+
+    .policy-points li {
+      color: var(--muted);
+      font-size: 0.95rem;
+      padding-left: 1.05rem;
+      position: relative;
+    }
+
+    .policy-points li::before {
+      content: "";
+      width: 0.36rem;
+      height: 0.36rem;
+      border-radius: 999px;
+      background: var(--ink);
+      position: absolute;
+      top: 0.48rem;
+      left: 0;
+    }
+
+    .notice {
+      margin-top: 0.75rem;
+      border: 1px solid var(--line);
+      padding: 0.85rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+    }
+
+    .cta {
+      margin-top: 1rem;
+      padding: 1.2rem 1.25rem;
+      background: var(--ink);
+      color: #f4f4f5;
+    }
+
+    .cta-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .cta-copy {
+      grid-column: 1 / 9;
+    }
+
+    .cta-title {
+      font-size: clamp(1.25rem, 2.2vw, 1.9rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.55rem;
+    }
+
+    .cta-copy p {
+      color: #d4d4d8;
+    }
+
+    .cta-link {
+      grid-column: 9 / 13;
+      justify-self: end;
+    }
+
+    .cta-link .btn {
+      border-color: #ffffff;
+      color: #ffffff;
+      background: transparent;
+    }
+
+    .cta-link .btn:hover {
+      background: #ffffff;
+      color: #111827;
+    }
+
+    .footer {
+      margin-top: 1rem;
+      padding: 1rem 1.25rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    @media (max-width: 1024px) {
       .hero-copy {
-        grid-column: 1 / 9;
-        border-top: 2px solid var(--ink);
-        padding-top: 0.8rem;
-      }
-
-      .kicker {
-        font-size: 0.75rem;
-        font-weight: 600;
-        letter-spacing: 0.08em;
-        text-transform: uppercase;
-        color: var(--muted);
-        margin-bottom: 0.65rem;
-      }
-
-      .hero-title {
-        font-size: clamp(1.8rem, 5vw, 3.3rem);
-        font-weight: 800;
-        line-height: 1.08;
-        letter-spacing: -0.03em;
-        max-width: 18ch;
-      }
-
-      .hero-desc {
-        margin-top: 0.9rem;
-        font-size: clamp(1rem, 1.8vw, 1.15rem);
-        color: var(--muted);
-        max-width: 62ch;
-      }
-
-      .hero-actions {
-        margin-top: 1.1rem;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.6rem;
-      }
-
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        border: 1px solid var(--ink);
-        padding: 0.58rem 0.9rem;
-        font-size: 0.9rem;
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        text-transform: uppercase;
-        cursor: pointer;
-        transition:
-          transform 180ms ease-out,
-          background-color 180ms ease-out,
-          color 180ms ease-out;
-      }
-
-      .btn-primary {
-        background: var(--cta);
-        color: #ffffff;
-        border-color: var(--cta);
-      }
-
-      .btn-secondary {
-        background: #ffffff;
-        color: var(--ink);
-      }
-
-      .btn:hover {
-        transform: translateY(-1px);
-      }
-
-      .btn:focus-visible {
-        outline: 3px solid #0ea5e9;
-        outline-offset: 2px;
+        grid-column: 1 / 13;
       }
 
       .hero-meta {
-        grid-column: 9 / 13;
-        display: grid;
-        gap: 0.6rem;
-      }
-
-      .meta-card {
-        border: 1px solid var(--line);
-        padding: 0.85rem;
-      }
-
-      .meta-card dt {
-        font-size: 0.72rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
-        color: var(--muted);
-        margin-bottom: 0.28rem;
-      }
-
-      .meta-card dd {
-        font-size: 1.05rem;
-        font-weight: 600;
-        letter-spacing: -0.01em;
-      }
-
-      .section {
-        margin-top: 1rem;
-        padding: 1.2rem 1.25rem;
-      }
-
-      .section-title {
-        font-size: clamp(1.2rem, 2vw, 1.6rem);
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.7rem;
-      }
-
-      .section-note {
-        color: var(--muted);
-        max-width: 70ch;
-        margin-bottom: 1rem;
-      }
-
-      .policy-grid {
-        display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        gap: 0.75rem;
+        grid-column: 1 / 13;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .policy-block {
-        grid-column: span 6;
-        border: 1px solid var(--line);
-        padding: 0.9rem;
-        transition:
-          border-color 180ms ease-out,
-          transform 180ms ease-out;
+        grid-column: span 12;
       }
 
-      .policy-block:hover {
-        border-color: var(--ink);
-        transform: translateY(-1px);
-      }
-
-      .policy-block h3 {
-        font-size: 0.86rem;
-        font-weight: 700;
-        text-transform: uppercase;
-        letter-spacing: 0.04em;
-        margin-bottom: 0.45rem;
-      }
-
-      .policy-block p {
-        color: var(--muted);
-        font-size: 0.98rem;
-      }
-
-      .policy-points {
-        margin-top: 0.55rem;
-        display: grid;
-        gap: 0.45rem;
-      }
-
-      .policy-points li {
-        color: var(--muted);
-        font-size: 0.95rem;
-        padding-left: 1.05rem;
-        position: relative;
-      }
-
-      .policy-points li::before {
-        content: "";
-        width: 0.36rem;
-        height: 0.36rem;
-        border-radius: 999px;
-        background: var(--ink);
-        position: absolute;
-        top: 0.48rem;
-        left: 0;
-      }
-
-      .notice {
-        margin-top: 0.75rem;
-        border: 1px solid var(--line);
-        padding: 0.85rem;
-        font-size: 0.95rem;
-        color: var(--muted);
-      }
-
-      .cta {
-        margin-top: 1rem;
-        padding: 1.2rem 1.25rem;
-        background: var(--ink);
-        color: #f4f4f5;
-      }
-
-      .cta-grid {
-        display: grid;
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        gap: 1rem;
-        align-items: center;
-      }
-
-      .cta-copy {
-        grid-column: 1 / 9;
-      }
-
-      .cta-title {
-        font-size: clamp(1.25rem, 2.2vw, 1.9rem);
-        font-weight: 700;
-        letter-spacing: -0.02em;
-        margin-bottom: 0.55rem;
-      }
-
-      .cta-copy p {
-        color: #d4d4d8;
+      .cta-copy,
+      .cta-link {
+        grid-column: 1 / 13;
       }
 
       .cta-link {
-        grid-column: 9 / 13;
-        justify-self: end;
+        justify-self: start;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 0.65rem;
       }
 
-      .cta-link .btn {
-        border-color: #ffffff;
-        color: #ffffff;
-        background: transparent;
-      }
-
-      .cta-link .btn:hover {
-        background: #ffffff;
-        color: #111827;
-      }
-
+      .hero,
+      .section,
+      .cta,
       .footer {
-        margin-top: 1rem;
-        padding: 1rem 1.25rem;
-        font-size: 0.85rem;
-        color: var(--muted);
-        text-transform: uppercase;
-        letter-spacing: 0.06em;
+        padding: 0.9rem;
       }
 
-      @media (max-width: 1024px) {
-        .hero-copy {
-          grid-column: 1 / 13;
-        }
+      .hero-meta {
+        grid-template-columns: 1fr;
+      }
+    }
 
-        .hero-meta {
-          grid-column: 1 / 13;
-          grid-template-columns: repeat(3, minmax(0, 1fr));
-        }
-
-        .policy-block {
-          grid-column: span 12;
-        }
-
-        .cta-copy,
-        .cta-link {
-          grid-column: 1 / 13;
-        }
-
-        .cta-link {
-          justify-self: start;
-        }
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
       }
 
-      @media (max-width: 768px) {
-        body {
-          padding: 0.65rem;
-        }
-
-        .hero,
-        .section,
-        .cta,
-        .footer {
-          padding: 0.9rem;
-        }
-
-        .hero-meta {
-          grid-template-columns: 1fr;
-        }
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
       }
+    }
+  </style>
+</head>
 
-      @media (prefers-reduced-motion: reduce) {
-        html {
-          scroll-behavior: auto;
-        }
-
-        *,
-        *::before,
-        *::after {
-          animation: none !important;
-          transition: none !important;
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="page">
-      <main>
-        <section class="hero frame" aria-labelledby="privacy-title">
-          <div class="swiss-grid">
-            <div class="hero-copy">
-              <p class="kicker">政策文件</p>
-              <h1 id="privacy-title" class="hero-title">輕筆記隱私權政策</h1>
-              <p class="hero-desc">
-                本政策說明「輕筆記」Chrome 擴充功能在你使用服務時，如何蒐集、使用、儲存與保護資料。
-                使用本擴充功能即表示你理解並同意本政策內容。
-              </p>
-              <div class="hero-actions">
-                <a class="btn btn-primary" href="#policy">閱讀政策條款</a>
-                <a class="btn btn-secondary" href="./index.html">返回文件首頁</a>
-              </div>
-            </div>
-
-            <dl class="hero-meta" aria-label="政策摘要">
-              <div class="meta-card">
-                <dt>生效日期</dt>
-                <dd>2026 年 3 月 4 日</dd>
-              </div>
-              <div class="meta-card">
-                <dt>適用範圍</dt>
-                <dd>輕筆記 Chrome 擴充功能</dd>
-              </div>
-              <div class="meta-card">
-                <dt>最後更新</dt>
-                <dd>2026 年 3 月 4 日</dd>
-              </div>
-            </dl>
-          </div>
-        </section>
-
-        <section id="policy" class="section frame" aria-labelledby="policy-title">
-          <h2 id="policy-title" class="section-title">隱私權政策條款</h2>
-          <p class="section-note">
-            我們以最小必要原則處理資料。你建立的筆記內容主要保存在瀏覽器儲存空間中，若你啟用 Chrome Sync，資料將依 Google
-            帳號同步機制在你的裝置間同步。
-          </p>
-
-          <div class="policy-grid">
-            <article id="data-collection" class="policy-block">
-              <h3>1. 蒐集哪些資料</h3>
-              <p>為提供筆記功能，系統可能處理以下資料：</p>
-              <ul class="policy-points">
-                <li>你輸入的筆記內容、標題、標籤與建立時間。</li>
-                <li>你手動儲存的來源網址與頁面標題。</li>
-                <li>必要的設定資料，例如編輯偏好與排序方式。</li>
-              </ul>
-            </article>
-
-            <article id="purpose" class="policy-block">
-              <h3>2. 資料使用目的</h3>
-              <p>資料僅用於提供與改善核心功能，不作其他用途：</p>
-              <ul class="policy-points">
-                <li>顯示、編輯、搜尋與分類你的筆記。</li>
-                <li>在你啟用同步時維持跨裝置資料一致性。</li>
-                <li>支援 JSON 匯出與匯入，方便你自行備份與遷移。</li>
-              </ul>
-            </article>
-
-            <article id="storage" class="policy-block">
-              <h3>3. 儲存與同步機制</h3>
-              <p>擴充功能使用 Chrome Extension 儲存 API：</p>
-              <ul class="policy-points">
-                <li>本機資料可儲存在 `chrome.storage.local`。</li>
-                <li>啟用同步時可使用 `chrome.storage.sync`。</li>
-                <li>我們不另行建立獨立後端伺服器保存你的筆記。</li>
-              </ul>
-            </article>
-
-            <article id="third-party" class="policy-block">
-              <h3>4. 第三方服務</h3>
-              <p>本擴充功能可能依賴以下第三方平台能力：</p>
-              <ul class="policy-points">
-                <li>Google Chrome 提供的擴充功能執行與儲存環境。</li>
-                <li>Chrome Sync（由 Google 帳號與 Google 服務管理）。</li>
-                <li>我們不出售、出租或分享你的筆記資料給廣告商。</li>
-              </ul>
-            </article>
-
-            <article id="rights" class="policy-block">
-              <h3>5. 你的權利與控制</h3>
-              <p>你可透過以下方式管理個人資料：</p>
-              <ul class="policy-points">
-                <li>在擴充功能中刪除單筆或全部筆記資料。</li>
-                <li>使用 JSON 匯出保留備份，或匯入先前資料。</li>
-                <li>移除擴充功能以停止後續資料處理。</li>
-              </ul>
-            </article>
-
-            <article id="updates" class="policy-block">
-              <h3>6. 政策更新</h3>
-              <p>若本政策有重大變更，將於本頁更新版本與日期。</p>
-              <ul class="policy-points">
-                <li>更新後政策自公告日期起生效。</li>
-                <li>建議你定期檢視本頁，掌握最新內容。</li>
-              </ul>
-            </article>
-          </div>
-
-          <p class="notice">
-            若你不同意本政策內容，請停止使用本擴充功能，並刪除本機或同步中的相關資料。
-          </p>
-        </section>
-
-        <section id="contact" class="cta frame" aria-labelledby="contact-title">
-          <div class="cta-grid">
-            <div class="cta-copy">
-              <h2 id="contact-title" class="cta-title">隱私權相關問題與聯絡方式</h2>
-              <p>
-                若你對資料處理方式有疑問，請透過 Chrome 線上應用程式商店中的開發者聯絡資訊與我們聯繫。
-              </p>
-            </div>
-            <div class="cta-link">
-              <a
-                class="btn"
-                href="https://chromewebstore.google.com/"
-                target="_blank"
-                rel="noreferrer noopener"
-                >前往 Chrome 線上應用程式商店</a
-              >
+<body>
+  <div class="page">
+    <main>
+      <section class="hero frame" aria-labelledby="privacy-title">
+        <div class="swiss-grid">
+          <div class="hero-copy">
+            <p class="kicker">政策文件</p>
+            <h1 id="privacy-title" class="hero-title">輕筆記隱私權政策</h1>
+            <p class="hero-desc">
+              本政策說明「輕筆記」Chrome 擴充功能在你使用服務時，如何蒐集、使用、儲存與保護資料。
+              使用本擴充功能即表示你理解並同意本政策內容。
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#policy">閱讀政策條款</a>
+              <a class="btn btn-secondary" href="./index.html">返回文件首頁</a>
             </div>
           </div>
-        </section>
-      </main>
 
-      <footer class="footer frame">版權所有 © 2026 AIbasil All rights reserved.</footer>
-    </div>
-  </body>
+          <dl class="hero-meta" aria-label="政策摘要">
+            <div class="meta-card">
+              <dt>生效日期</dt>
+              <dd>2026 年 3 月 4 日</dd>
+            </div>
+            <div class="meta-card">
+              <dt>適用範圍</dt>
+              <dd>輕筆記 Chrome 擴充功能</dd>
+            </div>
+            <div class="meta-card">
+              <dt>最後更新</dt>
+              <dd>2026 年 3 月 4 日</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section id="policy" class="section frame" aria-labelledby="policy-title">
+        <h2 id="policy-title" class="section-title">隱私權政策條款</h2>
+        <p class="section-note">
+          我們以最小必要原則處理資料。你建立的筆記內容主要保存在瀏覽器儲存空間中，若你啟用 Chrome Sync，資料將依 Google
+          帳號同步機制在你的裝置間同步。
+        </p>
+
+        <div class="policy-grid">
+          <article id="data-collection" class="policy-block">
+            <h3>1. 蒐集哪些資料</h3>
+            <p>為提供筆記功能，系統可能處理以下資料：</p>
+            <ul class="policy-points">
+              <li>你輸入的筆記內容、標題、標籤與建立時間。</li>
+              <li>你手動儲存的來源網址與頁面標題。</li>
+              <li>必要的設定資料，例如編輯偏好與排序方式。</li>
+            </ul>
+          </article>
+
+          <article id="purpose" class="policy-block">
+            <h3>2. 資料使用目的</h3>
+            <p>資料僅用於提供與改善核心功能，不作其他用途：</p>
+            <ul class="policy-points">
+              <li>顯示、編輯、搜尋與分類你的筆記。</li>
+              <li>在你啟用同步時維持跨裝置資料一致性。</li>
+              <li>支援 JSON 匯出與匯入，方便你自行備份與遷移。</li>
+            </ul>
+          </article>
+
+          <article id="storage" class="policy-block">
+            <h3>3. 儲存與同步機制</h3>
+            <p>擴充功能使用 Chrome Extension 儲存 API：</p>
+            <ul class="policy-points">
+              <li>本機資料可儲存在 `chrome.storage.local`。</li>
+              <li>啟用同步時可使用 `chrome.storage.sync`。</li>
+              <li>我們不另行建立獨立後端伺服器保存你的筆記。</li>
+            </ul>
+          </article>
+
+          <article id="third-party" class="policy-block">
+            <h3>4. 第三方服務</h3>
+            <p>本擴充功能可能依賴以下第三方平台能力：</p>
+            <ul class="policy-points">
+              <li>Google Chrome 提供的擴充功能執行與儲存環境。</li>
+              <li>Chrome Sync（由 Google 帳號與 Google 服務管理）。</li>
+              <li>我們不出售、出租或分享你的筆記資料給廣告商。</li>
+            </ul>
+          </article>
+
+          <article id="rights" class="policy-block">
+            <h3>5. 你的權利與控制</h3>
+            <p>你可透過以下方式管理個人資料：</p>
+            <ul class="policy-points">
+              <li>在擴充功能中刪除單筆或全部筆記資料。</li>
+              <li>使用 JSON 匯出保留備份，或匯入先前資料。</li>
+              <li>移除擴充功能以停止後續資料處理。</li>
+            </ul>
+          </article>
+
+          <article id="updates" class="policy-block">
+            <h3>6. 政策更新</h3>
+            <p>若本政策有重大變更，將於本頁更新版本與日期。</p>
+            <ul class="policy-points">
+              <li>更新後政策自公告日期起生效。</li>
+              <li>建議你定期檢視本頁，掌握最新內容。</li>
+            </ul>
+          </article>
+        </div>
+
+        <p class="notice">
+          若你不同意本政策內容，請停止使用本擴充功能，並刪除本機或同步中的相關資料。
+        </p>
+      </section>
+
+      <section id="contact" class="cta frame" aria-labelledby="contact-title">
+        <div class="cta-grid">
+          <div class="cta-copy">
+            <h2 id="contact-title" class="cta-title">隱私權相關問題與聯絡方式</h2>
+            <p>
+              若你對資料處理方式有疑問，請透過 Chrome 線上應用程式商店中的開發者聯絡資訊與我們聯繫。
+            </p>
+          </div>
+          <div class="cta-link">
+            <a class="btn" href="https://chromewebstore.google.com/" target="_blank" rel="noreferrer noopener">前往 Chrome
+              線上應用程式商店</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer frame">版權所有 © 2026 AIbasil All rights reserved.</footer>
+  </div>
+</body>
+
 </html>
