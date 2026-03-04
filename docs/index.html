@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="zh-Hant">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>輕筆記 Chrome 擴充功能文件</title>
+    <meta
+      name="description"
+      content="輕筆記是 Chrome 筆記擴充套件，支援 Popup / Sidebar / 獨立視窗、Markdown、標籤搜尋、同步與 JSON 備份。"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #fafafa;
+        --surface: #ffffff;
+        --line: #d4d4d8;
+        --text: #09090b;
+        --muted: #3f3f46;
+        --cta: #ec4899;
+        --ink: #18181b;
+        --max: 1180px;
+      }
+
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        min-height: 100vh;
+        font-family: "Inter", sans-serif;
+        color: var(--text);
+        background: var(--bg);
+        line-height: 1.5;
+        padding: 1rem;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        width: min(var(--max), 100%);
+        margin: 0 auto;
+      }
+
+      .frame {
+        border: 1px solid var(--line);
+        background: var(--surface);
+      }
+
+      .hero {
+        padding: 1.4rem 1.25rem;
+      }
+
+      .swiss-grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 1rem;
+      }
+
+      .hero-copy {
+        grid-column: 1 / 9;
+        border-top: 2px solid var(--ink);
+        padding-top: 0.8rem;
+      }
+
+      .kicker {
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 0.65rem;
+      }
+
+      .hero-title {
+        font-size: clamp(1.8rem, 5vw, 3.6rem);
+        font-weight: 800;
+        line-height: 1.08;
+        letter-spacing: -0.03em;
+        max-width: 18ch;
+      }
+
+      .hero-desc {
+        margin-top: 0.9rem;
+        font-size: clamp(1rem, 1.8vw, 1.2rem);
+        color: var(--muted);
+        max-width: 54ch;
+      }
+
+      .hero-actions {
+        margin-top: 1.1rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.6rem;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: 1px solid var(--ink);
+        padding: 0.58rem 0.9rem;
+        font-size: 0.9rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition:
+          transform 180ms ease-out,
+          background-color 180ms ease-out,
+          color 180ms ease-out;
+      }
+
+      .btn-primary {
+        background: var(--cta);
+        color: #ffffff;
+        border-color: var(--cta);
+      }
+
+      .btn-secondary {
+        background: #ffffff;
+        color: var(--ink);
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+      }
+
+      .btn:focus-visible {
+        outline: 3px solid #0ea5e9;
+        outline-offset: 2px;
+      }
+
+      .hero-meta {
+        grid-column: 9 / 13;
+        display: grid;
+        gap: 0.6rem;
+      }
+
+      .meta-card {
+        border: 1px solid var(--line);
+        padding: 0.85rem;
+      }
+
+      .meta-card dt {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--muted);
+        margin-bottom: 0.28rem;
+      }
+
+      .meta-card dd {
+        font-size: 1.05rem;
+        font-weight: 600;
+        letter-spacing: -0.01em;
+      }
+
+      .section {
+        margin-top: 1rem;
+        padding: 1.2rem 1.25rem;
+      }
+
+      .section-title {
+        font-size: clamp(1.2rem, 2vw, 1.6rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.7rem;
+      }
+
+      .section-note {
+        color: var(--muted);
+        max-width: 68ch;
+        margin-bottom: 1rem;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 0.75rem;
+      }
+
+      .feature {
+        border: 1px solid var(--line);
+        padding: 0.85rem;
+        min-height: 150px;
+        transition:
+          border-color 180ms ease-out,
+          transform 180ms ease-out;
+      }
+
+      .feature:nth-child(1),
+      .feature:nth-child(2),
+      .feature:nth-child(3) {
+        grid-column: span 4;
+      }
+
+      .feature:nth-child(4),
+      .feature:nth-child(5),
+      .feature:nth-child(6) {
+        grid-column: span 4;
+      }
+
+      .feature:hover {
+        border-color: var(--ink);
+        transform: translateY(-1px);
+      }
+
+      .feature h3 {
+        font-size: 0.86rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin-bottom: 0.45rem;
+      }
+
+      .feature p {
+        color: var(--muted);
+        font-size: 0.98rem;
+      }
+
+      .cta {
+        margin-top: 1rem;
+        padding: 1.2rem 1.25rem;
+        background: var(--ink);
+        color: #f4f4f5;
+      }
+
+      .cta-grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 1rem;
+        align-items: center;
+      }
+
+      .cta-copy {
+        grid-column: 1 / 9;
+      }
+
+      .cta-title {
+        font-size: clamp(1.25rem, 2.2vw, 1.9rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin-bottom: 0.55rem;
+      }
+
+      .cta-copy p {
+        color: #d4d4d8;
+      }
+
+      .cta-link {
+        grid-column: 9 / 13;
+        justify-self: end;
+      }
+
+      .cta-link .btn {
+        border-color: #ffffff;
+        color: #ffffff;
+        background: transparent;
+      }
+
+      .cta-link .btn:hover {
+        background: #ffffff;
+        color: #111827;
+      }
+
+      .footer {
+        margin-top: 1rem;
+        padding: 1rem 1.25rem;
+        font-size: 0.85rem;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+      }
+
+      @media (max-width: 1024px) {
+        .hero-copy {
+          grid-column: 1 / 13;
+        }
+
+        .hero-meta {
+          grid-column: 1 / 13;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+
+        .cta-copy,
+        .cta-link {
+          grid-column: 1 / 13;
+        }
+
+        .cta-link {
+          justify-self: start;
+        }
+      }
+
+      @media (max-width: 768px) {
+        body {
+          padding: 0.65rem;
+        }
+
+        .hero,
+        .section,
+        .cta,
+        .footer {
+          padding: 0.9rem;
+        }
+
+        .feature {
+          grid-column: span 6 !important;
+        }
+
+        .hero-meta {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .feature {
+          grid-column: span 12 !important;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        html {
+          scroll-behavior: auto;
+        }
+
+        *,
+        *::before,
+        *::after {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <main>
+        <section class="hero frame" aria-labelledby="hero-title">
+          <div class="swiss-grid">
+            <div class="hero-copy">
+              <p class="kicker">產品概覽</p>
+              <h1 id="hero-title" class="hero-title">
+                輕筆記重組你的 Chrome 筆記流程
+              </h1>
+              <p class="hero-desc">
+                你可以在 Popup 快速捕捉想法，於 Sidebar
+                持續整理，最後在獨立視窗完成深度編輯。
+                從記錄到回顧，整套流程都由同一份資料驅動。
+              </p>
+              <div class="hero-actions">
+                <a class="btn btn-primary" href="#install">立即安裝</a>
+                <a class="btn btn-secondary" href="#features">查看核心功能</a>
+                <a class="btn btn-secondary" href="./privacy-policy.html"
+                  >隱私權政策</a
+                >
+                <a class="btn btn-secondary" href="./terms-of-service.html"
+                  >服務條款</a
+                >
+              </div>
+            </div>
+
+            <dl class="hero-meta" aria-label="產品摘要">
+              <div class="meta-card">
+                <dt>介面模式</dt>
+                <dd>Popup / Sidebar / 獨立視窗</dd>
+              </div>
+              <div class="meta-card">
+                <dt>編輯器</dt>
+                <dd>Markdown + 純文字</dd>
+              </div>
+              <div class="meta-card">
+                <dt>資料</dt>
+                <dd>同步 + JSON 備份</dd>
+              </div>
+            </dl>
+          </div>
+        </section>
+
+        <section
+          id="features"
+          class="section frame"
+          aria-labelledby="features-title"
+        >
+          <h2 id="features-title" class="section-title">核心功能</h2>
+          <p class="section-note">
+            以下模組對應你日常的記錄、整理、檢索與備份流程，讓資訊層次更清楚、回查更有效率。
+          </p>
+          <div class="feature-grid">
+            <article class="feature">
+              <h3>三介面切換</h3>
+              <p>依任務深度切換操作視角，不需要為了整理內容而離開原始頁面。</p>
+            </article>
+            <article class="feature">
+              <h3>雙編輯模式</h3>
+              <p>支援 Markdown 與純文字，讓短記錄與長文整理在同一工具完成。</p>
+            </article>
+            <article class="feature">
+              <h3>標籤 + 全文搜尋</h3>
+              <p>可同時搜尋標題與內容，再搭配標籤縮小範圍，提高回查速度。</p>
+            </article>
+            <article class="feature">
+              <h3>同步與容量控制</h3>
+              <p>近期資料同步到 Chrome Sync，並提供空間監測避免超限。</p>
+            </article>
+            <article class="feature">
+              <h3>JSON 匯出匯入</h3>
+              <p>定期備份與資料搬遷更穩定，匯入時可合併既有筆記內容。</p>
+            </article>
+            <article class="feature">
+              <h3>來源脈絡保存</h3>
+              <p>可附加 URL、頁面標題與時間戳，回顧時保留完整研究上下文。</p>
+            </article>
+          </div>
+        </section>
+
+        <section id="install" class="cta frame" aria-labelledby="install-title">
+          <div class="cta-grid">
+            <div class="cta-copy">
+              <h2 id="install-title" class="cta-title">
+                從今天開始建立可回放知識庫
+              </h2>
+              <p>
+                前往 Chrome 線上應用程式商店，搜尋
+                <code>輕筆記</code>，點擊「加到 Chrome」即可安裝使用。
+              </p>
+            </div>
+            <div class="cta-link">
+              <a class="btn" href="https://chromewebstore.google.com/" target="_blank" rel="noreferrer noopener"
+                >前往 Chrome 線上應用程式商店</a
+              >
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer class="footer frame">
+        版權所有 © 2026 AIbasil All rights reserved.
+      </footer>
+    </div>
+  </body>
+</html>
