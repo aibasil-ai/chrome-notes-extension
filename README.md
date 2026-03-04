@@ -1,6 +1,6 @@
-# Chrome Notes Extension
+# 輕筆記 Extension
 
-一個 Chrome 擴充功能，讓你在瀏覽網頁時方便地做筆記。
+一個專為 Google Chrome 設計的輕量級筆記擴充套件，讓你在瀏覽網頁時能夠快速、方便地記錄想法和重要資訊。
 
 ## 功能
 

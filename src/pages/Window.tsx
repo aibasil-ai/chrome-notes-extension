@@ -124,7 +124,7 @@ const WindowApp: React.FC = () => {
                 style={{ width: leftPanelWidth }}
             >
                 <div className="p-4 border-b">
-                    <h1 className="text-xl font-bold mb-3 text-gray-800">📝 Chrome Notes</h1>
+                    <h1 className="text-xl font-bold mb-3 text-gray-800">📝 輕筆記</h1>
                     <div className="flex gap-2 items-start">
                         <div className="flex-1 min-w-0">
                             <SearchBar

@@ -1,7 +1,7 @@
-// Chrome Notes Extension — Background Service Worker
+// 輕筆記擴充套件 — Background Service Worker
 
 chrome.runtime.onInstalled.addListener(() => {
-    console.log('Chrome Notes Extension installed');
+    console.log('輕筆記擴充套件已安裝 (Lightweight Notes Extension installed)');
 });
 
 // 預設不用側邊欄取代 popup
