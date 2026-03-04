@@ -18,8 +18,13 @@ export default defineConfig({
         entryFileNames: '[name].js',
         chunkFileNames: '[name].js',
         assetFileNames: '[name].[ext]',
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'zustand'],
+          editor: ['easymde', 'react-simplemde-editor']
+        }
       },
     },
     outDir: 'dist',
+    chunkSizeWarningLimit: 1000,
   },
 })
