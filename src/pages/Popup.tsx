@@ -5,6 +5,7 @@ import { useNotesStore } from '../store/useNotesStore';
 import { NoteList } from '../components/NoteList';
 import { NoteEditor } from '../components/NoteEditor';
 import { Button } from '../components/shared';
+import { SearchBar } from '../components/SearchBar/SearchBar';
 import { useSearch } from '../hooks/useSearch';
 import type { Note } from '../types/note';
 import '../index.css';
@@ -23,7 +24,7 @@ const PopupApp: React.FC = () => {
     } = useNotesStore();
 
     const [isCreating, setIsCreating] = useState(false);
-    const { searchQuery, setSearchQuery, filteredNotes, allTags } = useSearch(notes);
+    const { searchQuery, setSearchQuery, selectedTags, setSelectedTags, filteredNotes, allTags } = useSearch(notes);
 
     useEffect(() => {
         loadNotes();
@@ -58,7 +59,19 @@ const PopupApp: React.FC = () => {
     };
 
     const handleOpenSidebar = () => {
-        chrome.runtime.sendMessage({ action: 'openSidebar' });
+        // 使用 windowId 開啟側邊欄，promise chain 確保順序正確
+        chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true })
+            .then(() => chrome.windows.getCurrent())
+            .then((win) => {
+                if (win.id !== undefined) {
+                    return chrome.sidePanel.open({ windowId: win.id });
+                }
+            })
+            .then(() => window.close())
+            .catch((err) => {
+                console.error('開啟側邊欄失敗:', err);
+                window.close();
+            });
     };
 
     const handleOpenWindow = () => {
@@ -70,18 +83,36 @@ const PopupApp: React.FC = () => {
     const showEditor = isCreating || selectedNote;
 
     return (
-        <div className="w-[320px] h-[600px] flex flex-col bg-white">
+        <div className="h-full flex flex-col bg-white overflow-hidden">
             {!showEditor ? (
                 <>
                     {/* 頂部標題 + 搜尋列 */}
                     <div className="p-3 border-b bg-gray-50">
                         <h1 className="text-lg font-bold text-gray-800 mb-2">📝 筆記</h1>
-                        <input
-                            type="text"
-                            placeholder="搜尋筆記..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                        <SearchBar
+                            searchQuery={searchQuery}
+                            onSearchChange={setSearchQuery}
+                            selectedTags={selectedTags}
+                            onTagsChange={setSelectedTags}
+                            availableTags={allTags}
+                            actions={
+                                <>
+                                    <button
+                                        onClick={handleOpenSidebar}
+                                        className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
+                                        title="開啟側邊欄模式"
+                                    >
+                                        📖
+                                    </button>
+                                    <button
+                                        onClick={handleOpenWindow}
+                                        className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
+                                        title="開啟獨立視窗模式"
+                                    >
+                                        🪟
+                                    </button>
+                                </>
+                            }
                         />
                     </div>
 
@@ -96,26 +127,10 @@ const PopupApp: React.FC = () => {
                     </div>
 
                     {/* 底部按鈕區 */}
-                    <div className="p-3 border-t space-y-2">
+                    <div className="p-3 border-t">
                         <Button onClick={handleCreateNote} variant="primary" className="w-full">
                             + 新增筆記
                         </Button>
-                        <div className="flex gap-2">
-                            <button
-                                onClick={handleOpenSidebar}
-                                className="flex-1 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors text-gray-700"
-                                title="開啟側邊欄模式"
-                            >
-                                📖 側邊欄
-                            </button>
-                            <button
-                                onClick={handleOpenWindow}
-                                className="flex-1 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors text-gray-700"
-                                title="開啟獨立視窗模式"
-                            >
-                                🪟 獨立視窗
-                            </button>
-                        </div>
                     </div>
                 </>
             ) : (

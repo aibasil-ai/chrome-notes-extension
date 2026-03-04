@@ -38,7 +38,9 @@ export const NoteItem: React.FC<NoteItemProps> = ({
                 <button
                     onClick={(e) => {
                         e.stopPropagation();
-                        onDelete();
+                        if (confirm(`確定要刪除「${note.title || '無標題'}」嗎？`)) {
+                            onDelete();
+                        }
                     }}
                     className="text-gray-400 hover:text-red-600 ml-2 transition-colors"
                     title="刪除"
@@ -47,20 +49,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
                 </button>
             </div>
 
-            {note.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
-                    {note.tags.map((tag) => (
-                        <span
-                            key={tag}
-                            className="px-2 py-0.5 text-xs bg-blue-100 text-blue-700 rounded"
-                        >
-                            {tag}
-                        </span>
-                    ))}
-                </div>
-            )}
-
-            <div className="flex items-center gap-2 mt-2 text-xs text-gray-500">
+            <div className="flex items-center gap-2 mt-2 text-xs text-gray-500 flex-wrap">
                 <span>{formatDate(note.updatedAt)}</span>
                 {note.pageContext && (
                     <button
@@ -77,6 +66,14 @@ export const NoteItem: React.FC<NoteItemProps> = ({
                 {note.editMode === 'markdown' && (
                     <span className="text-gray-400">MD</span>
                 )}
+                {note.tags.map((tag) => (
+                    <span
+                        key={tag}
+                        className="px-1.5 py-0.5 text-xs bg-blue-100 text-blue-700 rounded"
+                    >
+                        {tag}
+                    </span>
+                ))}
             </div>
         </div>
     );

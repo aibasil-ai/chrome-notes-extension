@@ -2,8 +2,11 @@
 import type { Note, AppSettings, SyncStorageUsage } from '../types/note';
 import { DEFAULT_SETTINGS } from '../types/note';
 
-const SYNC_STORAGE_LIMIT = 80 * 1024; // 80KB
+const SYNC_STORAGE_LIMIT = 80 * 1024; // 80KB 總限制
 const MAX_SYNC_NOTES = 50;
+// Chrome sync storage 單一 item 上限為 8,192 bytes，保留一些空間給 key 名稱和 JSON 包裝
+const CHUNK_SIZE_LIMIT = 7800;
+const CHUNK_KEY_PREFIX = 'notes_chunk_';
 
 export class StorageService {
     // 取得所有筆記（從 local storage）
@@ -40,14 +43,76 @@ export class StorageService {
         await this.syncToSyncStorage(filteredNotes);
     }
 
-    // 同步到 sync storage（最近 50 筆或 < 80KB）
+    // 取得字串的 UTF-8 byte 大小
+    private getByteLength(str: string): number {
+        return new TextEncoder().encode(str).length;
+    }
+
+    // 同步到 sync storage（分 chunk 儲存，每個 chunk 不超過 8KB）
     private async syncToSyncStorage(notes: Note[]): Promise<void> {
         try {
-            const recentNotes = notes.slice(0, MAX_SYNC_NOTES);
-            const dataSize = JSON.stringify(recentNotes).length;
+            let recentNotes = notes.slice(0, MAX_SYNC_NOTES);
+            let totalSize = this.getByteLength(JSON.stringify(recentNotes));
 
-            if (dataSize < SYNC_STORAGE_LIMIT) {
-                await chrome.storage.sync.set({ recentNotes });
+            // 超過總容量限制則逐步減少筆記數量
+            if (totalSize >= SYNC_STORAGE_LIMIT) {
+                while (recentNotes.length > 0 && this.getByteLength(JSON.stringify(recentNotes)) >= SYNC_STORAGE_LIMIT) {
+                    recentNotes = recentNotes.slice(0, -1);
+                }
+            }
+
+            // 將筆記分 chunk，每個 chunk 不超過 CHUNK_SIZE_LIMIT
+            const chunks: string[] = [];
+            let currentChunk: Note[] = [];
+            let currentSize = 2; // 初始為 "[]" 的長度
+
+            for (const note of recentNotes) {
+                const noteJson = JSON.stringify(note);
+                const noteByteSize = this.getByteLength(noteJson);
+                const additionalSize = noteByteSize + (currentChunk.length > 0 ? 1 : 0); // +1 為逗號
+
+                if (currentSize + additionalSize > CHUNK_SIZE_LIMIT && currentChunk.length > 0) {
+                    // 目前 chunk 已滿，儲存並開始新 chunk
+                    chunks.push(JSON.stringify(currentChunk));
+                    currentChunk = [note];
+                    currentSize = 2 + noteByteSize;
+                } else {
+                    currentChunk.push(note);
+                    currentSize += additionalSize;
+                }
+            }
+
+            // 最後一個 chunk
+            if (currentChunk.length > 0) {
+                chunks.push(JSON.stringify(currentChunk));
+            }
+
+            // 寫入所有 chunks
+            const setData: Record<string, string> = {
+                notes_chunk_count: String(chunks.length),
+            };
+            for (let i = 0; i < chunks.length; i++) {
+                setData[`${CHUNK_KEY_PREFIX}${i}`] = chunks[i];
+            }
+            await chrome.storage.sync.set(setData);
+
+            // 清除多餘的舊 chunk keys
+            const allSyncData = await chrome.storage.sync.get(null);
+            const keysToRemove: string[] = [];
+            for (const key of Object.keys(allSyncData)) {
+                if (key.startsWith(CHUNK_KEY_PREFIX)) {
+                    const index = parseInt(key.replace(CHUNK_KEY_PREFIX, ''), 10);
+                    if (!isNaN(index) && index >= chunks.length) {
+                        keysToRemove.push(key);
+                    }
+                }
+            }
+            // 也移除舊格式的 recentNotes key
+            if ('recentNotes' in allSyncData) {
+                keysToRemove.push('recentNotes');
+            }
+            if (keysToRemove.length > 0) {
+                await chrome.storage.sync.remove(keysToRemove);
             }
         } catch (error) {
             console.warn('Failed to sync to sync storage:', error);
@@ -88,3 +153,4 @@ export class StorageService {
 }
 
 export const storageService = new StorageService();
+

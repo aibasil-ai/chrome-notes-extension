@@ -1,5 +1,5 @@
 // Window 獨立視窗頁面（左右分割佈局，空間更大）
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useNotesStore } from '../store/useNotesStore';
 import { NoteList } from '../components/NoteList';
@@ -29,6 +29,10 @@ const WindowApp: React.FC = () => {
 
     const [isCreating, setIsCreating] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    // 左側面板寬度（px），預設 384（即 w-96）
+    const [leftPanelWidth, setLeftPanelWidth] = useState(384);
+    const isDraggingRef = useRef(false);
+    const containerRef = useRef<HTMLDivElement>(null);
     const {
         searchQuery,
         setSearchQuery,
@@ -42,6 +46,44 @@ const WindowApp: React.FC = () => {
         loadNotes();
         loadSettings();
         loadSyncUsage();
+    }, []);
+
+    // 拖曳分隔線事件處理
+    const handleMouseDown = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        isDraggingRef.current = true;
+        document.body.style.cursor = 'col-resize';
+        // 拖曳時禁止選取文字
+        document.body.style.userSelect = 'none';
+    }, []);
+
+    useEffect(() => {
+        const handleMouseMove = (e: MouseEvent) => {
+            if (!isDraggingRef.current || !containerRef.current) return;
+            const containerRect = containerRef.current.getBoundingClientRect();
+            const containerWidth = containerRect.width;
+            let newWidth = e.clientX - containerRect.left;
+            // 限制最小寬度 250px，最大不超過容器 60%
+            const minWidth = 250;
+            const maxWidth = containerWidth * 0.6;
+            newWidth = Math.max(minWidth, Math.min(maxWidth, newWidth));
+            setLeftPanelWidth(newWidth);
+        };
+
+        const handleMouseUp = () => {
+            if (isDraggingRef.current) {
+                isDraggingRef.current = false;
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+            }
+        };
+
+        document.addEventListener('mousemove', handleMouseMove);
+        document.addEventListener('mouseup', handleMouseUp);
+        return () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+        };
     }, []);
 
     const handleCreateNote = () => {
@@ -75,18 +117,34 @@ const WindowApp: React.FC = () => {
     const showEditor = isCreating || selectedNote;
 
     return (
-        <div className="h-screen flex bg-white">
+        <div ref={containerRef} className="h-screen flex bg-white">
             {/* 左側面板 — 筆記列表 */}
-            <div className="w-96 border-r flex flex-col bg-gray-50">
+            <div
+                className="flex flex-col bg-gray-50 shrink-0"
+                style={{ width: leftPanelWidth }}
+            >
                 <div className="p-4 border-b">
                     <h1 className="text-xl font-bold mb-3 text-gray-800">📝 Chrome Notes</h1>
-                    <SearchBar
-                        searchQuery={searchQuery}
-                        onSearchChange={setSearchQuery}
-                        selectedTags={selectedTags}
-                        onTagsChange={setSelectedTags}
-                        availableTags={allTags}
-                    />
+                    <div className="flex gap-2 items-start">
+                        <div className="flex-1 min-w-0">
+                            <SearchBar
+                                searchQuery={searchQuery}
+                                onSearchChange={setSearchQuery}
+                                selectedTags={selectedTags}
+                                onTagsChange={setSelectedTags}
+                                availableTags={allTags}
+                                actions={
+                                    <button
+                                        onClick={() => setShowSettings(true)}
+                                        className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-gray-200 rounded-md transition-colors border border-gray-300 hover:border-blue-300 flex-shrink-0"
+                                        title="設定"
+                                    >
+                                        ⚙️
+                                    </button>
+                                }
+                            />
+                        </div>
+                    </div>
                 </div>
 
                 <div className="flex-1 overflow-y-auto">
@@ -103,14 +161,21 @@ const WindowApp: React.FC = () => {
                     <Button onClick={handleCreateNote} variant="primary" className="w-full">
                         + 新增筆記
                     </Button>
-                    <Button onClick={() => setShowSettings(true)} variant="secondary" className="w-full">
-                        ⚙️ 設定
-                    </Button>
                 </div>
             </div>
 
+            {/* 可拖曳分隔線 */}
+            <div
+                onMouseDown={handleMouseDown}
+                className="w-1.5 bg-gray-200 hover:bg-blue-400 cursor-col-resize transition-colors shrink-0 relative group"
+                title="拖曳調整面板寬度"
+            >
+                {/* 中間拖曳提示點 */}
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-1 h-8 rounded-full bg-gray-400 group-hover:bg-white transition-colors" />
+            </div>
+
             {/* 右側面板 — 編輯器 */}
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
                 {showEditor ? (
                     <NoteEditor
                         note={selectedNote}

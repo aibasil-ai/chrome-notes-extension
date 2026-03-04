@@ -27,7 +27,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     }
 
     return (
-        <div className="overflow-y-auto">
+        <div>
             {notes.map((note) => (
                 <NoteItem
                     key={note.id}

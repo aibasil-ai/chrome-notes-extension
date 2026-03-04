@@ -8,18 +8,29 @@ body,
 #root {
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
 }
 
-/* Sidebar 和 Window 使用 h-screen，需要 html/body 撐滿 */
+/* Sidebar、Window 和 Popup 使用 h-screen，需要 html/body/#root 撐滿 */
 html.full-height,
 html.full-height body,
 html.full-height #root {
   height: 100%;
   overflow: hidden;
+}
+
+/* Popup 固定高度，不超過 600px */
+html.popup-height,
+html.popup-height body,
+html.popup-height #root {
+  height: 600px;
+  max-height: 600px;
+  overflow: hidden;
+  width: 320px;
 }
 
 * {
@@ -28,20 +39,32 @@ html.full-height #root {
 
 /* EasyMDE (SimpleMDE) 編輯器 — 邊框比照純文字模式 */
 
+/* 容器撐滿父層高度 */
+.EasyMDEContainer {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
 /* 工具列固定在頂端，不隨內容捲動 */
 .EasyMDEContainer .editor-toolbar {
   position: sticky;
   top: 0;
   z-index: 10;
   background-color: white;
+  flex-shrink: 0;
 }
 
-/* CodeMirror 編輯區：邊框比照純文字的 textarea */
+/* CodeMirror 編輯區：邊框比照純文字的 textarea，並撐滿剩餘空間 */
 .EasyMDEContainer .CodeMirror {
   border: 1px solid #d1d5db;
   /* border-gray-300 */
   border-radius: 0.375rem;
   /* rounded-md */
+  flex: 1;
+  height: auto !important;
+  /* 覆蓋 EasyMDE 預設的 300px */
+  min-height: 0;
 }
 
 /* 聚焦時的樣式 */
@@ -49,4 +72,9 @@ html.full-height #root {
   outline: none;
   box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
   border-color: #3b82f6;
+}
+
+/* CodeMirror 內部滾動區域撐滿 */
+.EasyMDEContainer .CodeMirror-scroll {
+  min-height: 100%;
 }

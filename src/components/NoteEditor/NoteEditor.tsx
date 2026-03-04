@@ -151,12 +151,13 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             </div>
 
             {/* 編輯區域 */}
-            <div className="flex-1 overflow-y-auto min-h-0">
+            <div className={`flex-1 min-h-0 ${editMode === 'markdown' ? 'flex flex-col' : 'overflow-y-auto'}`}>
                 {editMode === 'markdown' ? (
                     <SimpleMDE
                         value={content}
                         onChange={setContent}
                         options={simpleMdeOptions}
+                        className="h-full flex-1 flex flex-col"
                     />
                 ) : (
                     <textarea

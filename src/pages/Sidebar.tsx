@@ -70,10 +70,10 @@ const SidebarApp: React.FC = () => {
         selectNote(null);
     };
 
-    // 切換為 Popup 模式：下次點擊圖示會開啟 popup
+    // 切換為 Popup 模式：關閉側邊欄並立即開啟 popup
     const handleSwitchToPopup = () => {
         chrome.runtime.sendMessage({ action: 'switchToPopup' });
-        alert('已切換！下次點擊擴充功能圖示將開啟 Popup 視窗');
+        window.close();
     };
 
     const handleOpenWindow = () => {
@@ -85,7 +85,7 @@ const SidebarApp: React.FC = () => {
 
     return (
         <div className="h-screen flex flex-col bg-white">
-            {/* 頂部搜尋區 */}
+            {/* 頂部搜尋區 + 功能按鈕 */}
             <div className="p-3 border-b bg-gray-50">
                 <SearchBar
                     searchQuery={searchQuery}
@@ -93,6 +93,31 @@ const SidebarApp: React.FC = () => {
                     selectedTags={selectedTags}
                     onTagsChange={setSelectedTags}
                     availableTags={allTags}
+                    actions={
+                        <>
+                            <button
+                                onClick={handleSwitchToPopup}
+                                className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
+                                title="切換 Popup 模式"
+                            >
+                                📝
+                            </button>
+                            <button
+                                onClick={handleOpenWindow}
+                                className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
+                                title="開啟獨立視窗"
+                            >
+                                🪟
+                            </button>
+                            <button
+                                onClick={() => setShowSettings(true)}
+                                className="p-1.5 text-gray-500 hover:text-blue-600 hover:bg-gray-200 rounded-md transition-colors flex-shrink-0"
+                                title="設定"
+                            >
+                                ⚙️
+                            </button>
+                        </>
+                    }
                 />
             </div>
 
@@ -124,26 +149,6 @@ const SidebarApp: React.FC = () => {
                             <Button onClick={handleCreateNote} variant="primary" className="w-full">
                                 + 新增筆記
                             </Button>
-                            <div className="flex gap-2">
-                                <button
-                                    onClick={handleSwitchToPopup}
-                                    className="flex-1 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors text-gray-700"
-                                >
-                                    📝 切換 Popup
-                                </button>
-                                <button
-                                    onClick={handleOpenWindow}
-                                    className="flex-1 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors text-gray-700"
-                                >
-                                    🪟 獨立視窗
-                                </button>
-                                <button
-                                    onClick={() => setShowSettings(true)}
-                                    className="px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 rounded-md transition-colors text-gray-700"
-                                >
-                                    ⚙️
-                                </button>
-                            </div>
                         </div>
                     </>
                 )}
