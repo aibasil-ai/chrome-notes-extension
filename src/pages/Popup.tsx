@@ -15,6 +15,7 @@ const PopupApp: React.FC = () => {
         notes,
         settings,
         selectedNoteId,
+        unsyncedNoteIds,
         loadNotes,
         loadSettings,
         createNote,
@@ -40,7 +41,7 @@ const PopupApp: React.FC = () => {
         if (note.id) {
             await updateNote(note);
         } else {
-            await createNote(note.title, note.content, note.tags, note.pageContext);
+            await createNote(note.title, note.content, note.tags, note.editMode, note.pageContext);
         }
         setIsCreating(false);
         selectNote(null);
@@ -121,6 +122,7 @@ const PopupApp: React.FC = () => {
                         <NoteList
                             notes={filteredNotes.slice(0, 10)}
                             selectedNoteId={selectedNoteId}
+                            unsyncedNoteIds={unsyncedNoteIds}
                             onSelectNote={selectNote}
                             onDeleteNote={deleteNote}
                         />

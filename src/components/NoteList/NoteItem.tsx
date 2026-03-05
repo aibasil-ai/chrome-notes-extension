@@ -1,10 +1,11 @@
 // 筆記項目元件
-import React from 'react';
+import React, { useMemo } from 'react';
 import type { Note } from '../../types/note';
 
 interface NoteItemProps {
     note: Note;
     isSelected: boolean;
+    isUnsynced: boolean;
     onClick: () => void;
     onDelete: () => void;
 }
@@ -12,6 +13,7 @@ interface NoteItemProps {
 export const NoteItem: React.FC<NoteItemProps> = ({
     note,
     isSelected,
+    isUnsynced,
     onClick,
     onDelete,
 }) => {
@@ -24,6 +26,13 @@ export const NoteItem: React.FC<NoteItemProps> = ({
             minute: '2-digit',
         });
     };
+
+    // 計算筆記佔用容量
+    const noteSize = useMemo(() => {
+        const bytes = new TextEncoder().encode(JSON.stringify(note)).length;
+        if (bytes < 1024) return `${bytes}B`;
+        return `${(bytes / 1024).toFixed(1)}KB`;
+    }, [note]);
 
     return (
         <div
@@ -51,6 +60,15 @@ export const NoteItem: React.FC<NoteItemProps> = ({
 
             <div className="flex items-center gap-2 mt-2 text-xs text-gray-500 flex-wrap">
                 <span>{formatDate(note.updatedAt)}</span>
+                <span className="text-gray-400 cursor-help" title={`容量：${noteSize}`}>📦</span>
+                {isUnsynced && (
+                    <span
+                        className="text-amber-500 cursor-help"
+                        title="此筆記未同步至雲端（超過儲存限制）"
+                    >
+                        ⚠️
+                    </span>
+                )}
                 {note.pageContext && (
                     <button
                         onClick={(e) => {

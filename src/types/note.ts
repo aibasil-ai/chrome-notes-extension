@@ -33,7 +33,7 @@ export interface StorageData {
 }
 
 export const DEFAULT_SETTINGS: AppSettings = {
-    defaultEditMode: 'markdown',
+    defaultEditMode: 'plain',
     autoSaveInterval: 3000,
     capturePageByDefault: false,
     theme: 'auto',

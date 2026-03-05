@@ -10,14 +10,16 @@ interface NotesState {
     isLoading: boolean;
     selectedNoteId: string | null;
     syncUsage: SyncStorageUsage | null;
+    unsyncedNoteIds: string[];
 
     // 資料讀取
     loadNotes: () => Promise<void>;
     loadSettings: () => Promise<void>;
     loadSyncUsage: () => Promise<void>;
+    loadUnsyncedNoteIds: () => Promise<void>;
 
     // 筆記 CRUD
-    createNote: (title: string, content: string, tags: string[], pageContext?: Note['pageContext']) => Promise<void>;
+    createNote: (title: string, content: string, tags: string[], editMode: Note['editMode'], pageContext?: Note['pageContext']) => Promise<void>;
     updateNote: (note: Note) => Promise<void>;
     deleteNote: (noteId: string) => Promise<void>;
     selectNote: (noteId: string | null) => void;
@@ -32,7 +34,7 @@ interface NotesState {
 export const useNotesStore = create<NotesState>((set, get) => ({
     notes: [],
     settings: {
-        defaultEditMode: 'markdown',
+        defaultEditMode: 'plain',
         autoSaveInterval: 3000,
         capturePageByDefault: false,
         theme: 'auto',
@@ -40,12 +42,14 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     isLoading: false,
     selectedNoteId: null,
     syncUsage: null,
+    unsyncedNoteIds: [],
 
     loadNotes: async () => {
         set({ isLoading: true });
         try {
             const notes = await storageService.getAllNotes();
             set({ notes, isLoading: false });
+            await get().loadUnsyncedNoteIds();
         } catch (error) {
             console.error('Failed to load notes:', error);
             set({ isLoading: false });
@@ -70,8 +74,16 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         }
     },
 
-    createNote: async (title, content, tags, pageContext) => {
-        const { settings } = get();
+    loadUnsyncedNoteIds: async () => {
+        try {
+            const unsyncedNoteIds = await storageService.getUnsyncedNoteIds();
+            set({ unsyncedNoteIds });
+        } catch (error) {
+            console.error('Failed to load unsynced note IDs:', error);
+        }
+    },
+
+    createNote: async (title, content, tags, editMode, pageContext) => {
         const now = Date.now();
         const note: Note = {
             id: generateUUID(),
@@ -81,12 +93,13 @@ export const useNotesStore = create<NotesState>((set, get) => ({
             createdAt: now,
             updatedAt: now,
             pageContext,
-            editMode: settings.defaultEditMode,
+            editMode,
         };
 
         await storageService.saveNote(note);
         set((state) => ({ notes: [note, ...state.notes] }));
         await get().loadSyncUsage();
+        await get().loadUnsyncedNoteIds();
     },
 
     updateNote: async (note) => {
@@ -96,6 +109,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
             notes: state.notes.map((n) => (n.id === note.id ? updatedNote : n)),
         }));
         await get().loadSyncUsage();
+        await get().loadUnsyncedNoteIds();
     },
 
     deleteNote: async (noteId) => {
@@ -105,6 +119,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
             selectedNoteId: state.selectedNoteId === noteId ? null : state.selectedNoteId,
         }));
         await get().loadSyncUsage();
+        await get().loadUnsyncedNoteIds();
     },
 
     selectNote: (noteId) => {

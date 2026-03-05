@@ -17,6 +17,7 @@ const SidebarApp: React.FC = () => {
         settings,
         selectedNoteId,
         syncUsage,
+        unsyncedNoteIds,
         loadNotes,
         loadSettings,
         loadSyncUsage,
@@ -53,7 +54,7 @@ const SidebarApp: React.FC = () => {
         if (note.id) {
             await updateNote(note);
         } else {
-            await createNote(note.title, note.content, note.tags, note.pageContext);
+            await createNote(note.title, note.content, note.tags, note.editMode, note.pageContext);
         }
         setIsCreating(false);
         selectNote(null);
@@ -139,6 +140,7 @@ const SidebarApp: React.FC = () => {
                             <NoteList
                                 notes={filteredNotes}
                                 selectedNoteId={selectedNoteId}
+                                unsyncedNoteIds={unsyncedNoteIds}
                                 onSelectNote={selectNote}
                                 onDeleteNote={deleteNote}
                             />

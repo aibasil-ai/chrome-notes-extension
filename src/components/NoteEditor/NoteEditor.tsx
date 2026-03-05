@@ -29,7 +29,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [tags, setTags] = useState<string[]>([]);
-    const [editMode, setEditMode] = useState<'plain' | 'markdown'>('markdown');
+    const [editMode, setEditMode] = useState<'plain' | 'markdown'>('plain');
     const [capturePageContext, setCapturePageContext] = useState(capturePageByDefault);
 
     useEffect(() => {
@@ -42,7 +42,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             setTitle('');
             setContent('');
             setTags([]);
-            setEditMode('markdown');
+            setEditMode('plain');
         }
     }, [note]);
 
@@ -63,16 +63,22 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
 
         if (capturePageContext) {
             try {
-                // 取得所有視窗的 active tabs，過濾掉擴充功能／瀏覽器內部頁面
-                const tabs = await chrome.tabs.query({ active: true });
-                const tab = tabs.find(
-                    (t) =>
-                        t.url &&
-                        !t.url.startsWith('chrome://') &&
-                        !t.url.startsWith('chrome-extension://') &&
-                        !t.url.startsWith('about:') &&
-                        !t.url.startsWith('edge://')
-                );
+                // 過濾函式：只保留真實網頁
+                const isWebPage = (t: chrome.tabs.Tab) =>
+                    t.url &&
+                    !t.url.startsWith('chrome://') &&
+                    !t.url.startsWith('chrome-extension://') &&
+                    !t.url.startsWith('about:') &&
+                    !t.url.startsWith('edge://');
+
+                // 查所有視窗的 active tabs，過濾出真實網頁
+                const allTabs = await chrome.tabs.query({ active: true });
+                const webTabs = allTabs.filter(isWebPage);
+
+                // 優先選最近存取的 tab（lastAccessed 越大越新）
+                const tab = webTabs.sort(
+                    (a, b) => (b.lastAccessed ?? 0) - (a.lastAccessed ?? 0)
+                )[0];
                 if (tab) {
                     pageContext = {
                         url: tab.url || '',

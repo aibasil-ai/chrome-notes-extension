@@ -6,6 +6,7 @@ import { NoteItem } from './NoteItem';
 interface NoteListProps {
     notes: Note[];
     selectedNoteId: string | null;
+    unsyncedNoteIds: string[];
     onSelectNote: (noteId: string) => void;
     onDeleteNote: (noteId: string) => void;
 }
@@ -13,6 +14,7 @@ interface NoteListProps {
 export const NoteList: React.FC<NoteListProps> = ({
     notes,
     selectedNoteId,
+    unsyncedNoteIds,
     onSelectNote,
     onDeleteNote,
 }) => {
@@ -33,6 +35,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                     key={note.id}
                     note={note}
                     isSelected={note.id === selectedNoteId}
+                    isUnsynced={unsyncedNoteIds.includes(note.id)}
                     onClick={() => onSelectNote(note.id)}
                     onDelete={() => onDeleteNote(note.id)}
                 />
