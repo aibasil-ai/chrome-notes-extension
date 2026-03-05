@@ -1,6 +1,7 @@
 // Zustand Store — 筆記狀態管理
 import { create } from 'zustand';
 import type { Note, AppSettings, SyncStorageUsage } from '../types/note';
+import { DEFAULT_SETTINGS } from '../types/note';
 import { storageService } from '../services/storage';
 import { generateUUID } from '../utils/uuid';
 
@@ -33,12 +34,7 @@ interface NotesState {
 
 export const useNotesStore = create<NotesState>((set, get) => ({
     notes: [],
-    settings: {
-        defaultEditMode: 'plain',
-        autoSaveInterval: 3000,
-        capturePageByDefault: false,
-        theme: 'auto',
-    },
+    settings: DEFAULT_SETTINGS,
     isLoading: false,
     selectedNoteId: null,
     syncUsage: null,
@@ -59,7 +55,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     loadSettings: async () => {
         try {
             const settings = await storageService.getSettings();
-            set({ settings });
+            // 舊版設定可能缺少新欄位，這裡用預設值補齊，避免 undefined。
+            set({ settings: { ...DEFAULT_SETTINGS, ...settings } });
         } catch (error) {
             console.error('Failed to load settings:', error);
         }

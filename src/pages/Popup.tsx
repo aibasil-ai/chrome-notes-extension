@@ -123,6 +123,7 @@ const PopupApp: React.FC = () => {
                             notes={filteredNotes}
                             selectedNoteId={selectedNoteId}
                             unsyncedNoteIds={unsyncedNoteIds}
+                            showNoteSizeIcon={settings.showNoteSizeIcon}
                             onSelectNote={selectNote}
                             onDeleteNote={deleteNote}
                         />

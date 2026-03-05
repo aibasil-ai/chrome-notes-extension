@@ -25,6 +25,7 @@ const WindowApp: React.FC = () => {
         updateNote,
         deleteNote,
         selectNote,
+        updateSettings,
         importNotes,
     } = useNotesStore();
 
@@ -153,6 +154,7 @@ const WindowApp: React.FC = () => {
                         notes={filteredNotes}
                         selectedNoteId={selectedNoteId}
                         unsyncedNoteIds={unsyncedNoteIds}
+                        showNoteSizeIcon={settings.showNoteSizeIcon}
                         onSelectNote={selectNote}
                         onDeleteNote={deleteNote}
                     />
@@ -203,6 +205,8 @@ const WindowApp: React.FC = () => {
             {showSettings && (
                 <Settings
                     notes={notes}
+                    settings={settings}
+                    onUpdateSettings={updateSettings}
                     onImport={importNotes}
                     onClose={() => setShowSettings(false)}
                     syncUsage={syncUsage}

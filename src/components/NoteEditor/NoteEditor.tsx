@@ -31,6 +31,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
     const [tags, setTags] = useState<string[]>([]);
     const [editMode, setEditMode] = useState<'plain' | 'markdown'>('plain');
     const [capturePageContext, setCapturePageContext] = useState(capturePageByDefault);
+    const [shouldRefreshPageContext, setShouldRefreshPageContext] = useState(false);
 
     useEffect(() => {
         if (note) {
@@ -38,13 +39,18 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             setContent(note.content);
             setTags(note.tags);
             setEditMode(note.editMode);
+            // 編輯既有筆記時，若原本有記錄網頁，預設維持勾選。
+            setCapturePageContext(Boolean(note.pageContext));
+            setShouldRefreshPageContext(false);
         } else {
             setTitle('');
             setContent('');
             setTags([]);
             setEditMode('plain');
+            setCapturePageContext(capturePageByDefault);
+            setShouldRefreshPageContext(false);
         }
-    }, [note]);
+    }, [note, capturePageByDefault]);
 
     // SimpleMDE 選項（使用 useMemo 避免重新建立）
     const simpleMdeOptions = useMemo(() => ({
@@ -57,37 +63,51 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         ] as const,
     }), []);
 
+    const captureCurrentPageContext = async (): Promise<Note['pageContext']> => {
+        try {
+            // 過濾函式：只保留真實網頁
+            const isWebPage = (t: chrome.tabs.Tab) =>
+                t.url &&
+                !t.url.startsWith('chrome://') &&
+                !t.url.startsWith('chrome-extension://') &&
+                !t.url.startsWith('about:') &&
+                !t.url.startsWith('edge://');
+
+            // 查所有視窗的 active tabs，過濾出真實網頁
+            const allTabs = await chrome.tabs.query({ active: true });
+            const webTabs = allTabs.filter(isWebPage);
+
+            // 優先選最近存取的 tab（lastAccessed 越大越新）
+            const tab = webTabs.sort(
+                (a, b) => (b.lastAccessed ?? 0) - (a.lastAccessed ?? 0)
+            )[0];
+            if (!tab) return undefined;
+
+            return {
+                url: tab.url || '',
+                pageTitle: tab.title || '',
+                capturedAt: Date.now(),
+            };
+        } catch (error) {
+            console.error('Failed to capture page context:', error);
+            return undefined;
+        }
+    };
+
     // 組裝筆記資料（共用邏輯）
     const buildNote = async (): Promise<Note> => {
         let pageContext: Note['pageContext'] = undefined;
 
         if (capturePageContext) {
-            try {
-                // 過濾函式：只保留真實網頁
-                const isWebPage = (t: chrome.tabs.Tab) =>
-                    t.url &&
-                    !t.url.startsWith('chrome://') &&
-                    !t.url.startsWith('chrome-extension://') &&
-                    !t.url.startsWith('about:') &&
-                    !t.url.startsWith('edge://');
-
-                // 查所有視窗的 active tabs，過濾出真實網頁
-                const allTabs = await chrome.tabs.query({ active: true });
-                const webTabs = allTabs.filter(isWebPage);
-
-                // 優先選最近存取的 tab（lastAccessed 越大越新）
-                const tab = webTabs.sort(
-                    (a, b) => (b.lastAccessed ?? 0) - (a.lastAccessed ?? 0)
-                )[0];
-                if (tab) {
-                    pageContext = {
-                        url: tab.url || '',
-                        pageTitle: tab.title || '',
-                        capturedAt: Date.now(),
-                    };
+            if (note?.pageContext && !shouldRefreshPageContext) {
+                // 預設沿用原本已記錄的網址，避免每次儲存都覆蓋。
+                pageContext = note.pageContext;
+            } else {
+                // 只有新筆記或使用者明確要求更新時，才重新抓目前分頁網址。
+                pageContext = await captureCurrentPageContext();
+                if (!pageContext && note?.pageContext) {
+                    pageContext = note.pageContext;
                 }
-            } catch (error) {
-                console.error('Failed to capture page context:', error);
             }
         }
 
@@ -150,11 +170,26 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
                     <input
                         type="checkbox"
                         checked={capturePageContext}
-                        onChange={(e) => setCapturePageContext(e.target.checked)}
+                        onChange={(e) => {
+                            setCapturePageContext(e.target.checked);
+                            if (!e.target.checked) {
+                                setShouldRefreshPageContext(false);
+                            }
+                        }}
                     />
                     記錄網頁
                 </label>
             </div>
+            {capturePageContext && note?.pageContext && (
+                <label className="flex items-center gap-2 text-xs text-gray-600 -mt-1">
+                    <input
+                        type="checkbox"
+                        checked={shouldRefreshPageContext}
+                        onChange={(e) => setShouldRefreshPageContext(e.target.checked)}
+                    />
+                    儲存時更新為目前分頁網址
+                </label>
+            )}
 
             {/* 編輯區域 */}
             <div className="flex-1 min-h-0 flex flex-col">

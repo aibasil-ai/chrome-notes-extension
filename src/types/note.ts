@@ -23,6 +23,7 @@ export interface AppSettings {
     defaultEditMode: 'plain' | 'markdown';
     autoSaveInterval: number;       // 自動儲存間隔（毫秒）
     capturePageByDefault: boolean;  // 預設是否記錄網頁資訊
+    showNoteSizeIcon: boolean;      // 是否顯示筆記容量圖示
     theme: 'light' | 'dark' | 'auto';
 }
 
@@ -36,6 +37,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     defaultEditMode: 'plain',
     autoSaveInterval: 3000,
     capturePageByDefault: false,
+    showNoteSizeIcon: true,
     theme: 'auto',
 };
 

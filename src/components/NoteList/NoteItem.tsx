@@ -6,6 +6,7 @@ interface NoteItemProps {
     note: Note;
     isSelected: boolean;
     isUnsynced: boolean;
+    showNoteSizeIcon: boolean;
     onClick: () => void;
     onDelete: () => void;
 }
@@ -14,10 +15,11 @@ export const NoteItem: React.FC<NoteItemProps> = ({
     note,
     isSelected,
     isUnsynced,
+    showNoteSizeIcon,
     onClick,
     onDelete,
 }) => {
-    const metaEmojiClassName =
+    const warningEmojiClassName =
         'inline-flex h-[14px] w-[14px] items-center justify-center leading-none align-middle';
 
     const formatDate = (timestamp: number) => {
@@ -63,16 +65,17 @@ export const NoteItem: React.FC<NoteItemProps> = ({
 
             <div className="flex items-center gap-2 mt-2 text-xs text-gray-500 flex-wrap">
                 <span>{formatDate(note.updatedAt)}</span>
-                <span
-                    className={`${metaEmojiClassName} text-gray-400 cursor-help`}
-                    style={{ fontSize: '14px' }}
-                    title={`容量：${noteSize}`}
-                >
-                    📦
-                </span>
+                {showNoteSizeIcon && (
+                    <span
+                        className="text-[11px] leading-none text-gray-400 cursor-help tabular-nums"
+                        title={`容量：${noteSize}`}
+                    >
+                        {noteSize}
+                    </span>
+                )}
                 {isUnsynced && (
                     <span
-                        className={`${metaEmojiClassName} text-amber-500 cursor-help`}
+                        className={`${warningEmojiClassName} text-amber-500 cursor-help`}
                         style={{ fontSize: '14px', transform: 'translateY(-1.5px)' }}
                         title="此筆記未同步至雲端（超過儲存限制）"
                     >

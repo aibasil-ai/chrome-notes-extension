@@ -7,6 +7,7 @@ interface NoteListProps {
     notes: Note[];
     selectedNoteId: string | null;
     unsyncedNoteIds: string[];
+    showNoteSizeIcon: boolean;
     onSelectNote: (noteId: string) => void;
     onDeleteNote: (noteId: string) => void;
 }
@@ -15,6 +16,7 @@ export const NoteList: React.FC<NoteListProps> = ({
     notes,
     selectedNoteId,
     unsyncedNoteIds,
+    showNoteSizeIcon,
     onSelectNote,
     onDeleteNote,
 }) => {
@@ -36,6 +38,7 @@ export const NoteList: React.FC<NoteListProps> = ({
                     note={note}
                     isSelected={note.id === selectedNoteId}
                     isUnsynced={unsyncedNoteIds.includes(note.id)}
+                    showNoteSizeIcon={showNoteSizeIcon}
                     onClick={() => onSelectNote(note.id)}
                     onDelete={() => onDeleteNote(note.id)}
                 />
