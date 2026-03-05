@@ -29,8 +29,14 @@ html.popup-height body,
 html.popup-height #root {
   height: 600px;
   max-height: 600px;
-  overflow: hidden;
+  overflow: hidden !important;
   width: 320px;
+}
+
+/* 隱藏 Popup 外層捲軸（Chrome 瀏覽器層級） */
+html.popup-height::-webkit-scrollbar,
+html.popup-height body::-webkit-scrollbar {
+  display: none;
 }
 
 * {
