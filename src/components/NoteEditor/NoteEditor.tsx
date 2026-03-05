@@ -151,7 +151,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
             </div>
 
             {/* 編輯區域 */}
-            <div className={`flex-1 min-h-0 ${editMode === 'markdown' ? 'flex flex-col' : 'overflow-y-auto'}`}>
+            <div className="flex-1 min-h-0 flex flex-col">
                 {editMode === 'markdown' ? (
                     <SimpleMDE
                         value={content}
@@ -164,7 +164,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
                         placeholder="開始寫筆記..."
-                        className="w-full h-full p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        className="w-full flex-1 min-h-0 p-3 border border-gray-300 rounded-md resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 )}
             </div>
