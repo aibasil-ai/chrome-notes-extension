@@ -48,6 +48,21 @@ export const Settings: React.FC<SettingsProps> = ({
         }
     };
 
+    const handleAllowLocalSaveChange = async (checked: boolean) => {
+        setIsSavingSettings(true);
+        setError(null);
+        try {
+            await onUpdateSettings({
+                ...settings,
+                allowLocalSaveWhenSyncFull: checked,
+            });
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '儲存設定失敗');
+        } finally {
+            setIsSavingSettings(false);
+        }
+    };
+
     const handleExport = () => {
         exportService.downloadJSON(notes);
     };
@@ -101,6 +116,25 @@ export const Settings: React.FC<SettingsProps> = ({
                             />
                             在筆記列表顯示容量數值
                         </label>
+                    </div>
+
+                    <hr className="border-gray-200" />
+
+                    {/* 儲存設定 */}
+                    <div>
+                        <h3 className="font-medium mb-2">💾 儲存設定</h3>
+                        <label className="flex items-center gap-2 text-sm text-gray-700">
+                            <input
+                                type="checkbox"
+                                checked={settings.allowLocalSaveWhenSyncFull}
+                                disabled={isSavingSettings}
+                                onChange={(e) => handleAllowLocalSaveChange(e.target.checked)}
+                            />
+                            同步容量滿載時允許僅儲存本機（預設關閉）
+                        </label>
+                        <p className="text-xs text-gray-500 mt-2">
+                            關閉時：若無法同步，將阻擋儲存並提示你先開啟此選項。
+                        </p>
                     </div>
 
                     <hr className="border-gray-200" />

@@ -1,5 +1,5 @@
 // Sidebar 側邊欄頁面
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useNotesStore } from '../store/useNotesStore';
 import { NoteList } from '../components/NoteList';
@@ -9,6 +9,7 @@ import { Settings } from '../components/Settings';
 import { Button, SyncStorageStatus } from '../components/shared';
 import { useSearch } from '../hooks/useSearch';
 import type { Note } from '../types/note';
+import { SYNC_CAPACITY_BLOCK_MESSAGE } from '../services/storage';
 import '../index.css';
 
 const SidebarApp: React.FC = () => {
@@ -31,6 +32,7 @@ const SidebarApp: React.FC = () => {
 
     const [isCreating, setIsCreating] = useState(false);
     const [showSettings, setShowSettings] = useState(false);
+    const hasShownAutoSaveErrorRef = useRef(false);
     const {
         searchQuery,
         setSearchQuery,
@@ -52,18 +54,33 @@ const SidebarApp: React.FC = () => {
     };
 
     const handleSaveNote = async (note: Note) => {
-        if (note.id) {
-            await updateNote(note);
-        } else {
-            await createNote(note.title, note.content, note.tags, note.editMode, note.pageContext);
+        try {
+            if (note.id) {
+                await updateNote(note);
+            } else {
+                await createNote(note.title, note.content, note.tags, note.editMode, note.pageContext);
+            }
+            setIsCreating(false);
+            selectNote(null);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : SYNC_CAPACITY_BLOCK_MESSAGE;
+            alert(message);
         }
-        setIsCreating(false);
-        selectNote(null);
     };
 
     const handleAutoSaveNote = async (note: Note) => {
         if (note.id) {
-            await updateNote(note);
+            try {
+                await updateNote(note);
+                hasShownAutoSaveErrorRef.current = false;
+            } catch (error) {
+                console.warn('自動儲存失敗:', error);
+                const message = error instanceof Error ? error.message : SYNC_CAPACITY_BLOCK_MESSAGE;
+                if (!hasShownAutoSaveErrorRef.current) {
+                    alert(message);
+                    hasShownAutoSaveErrorRef.current = true;
+                }
+            }
         }
     };
 

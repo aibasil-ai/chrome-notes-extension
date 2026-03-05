@@ -9,6 +9,7 @@ import { Settings } from '../components/Settings';
 import { Button, SyncStorageStatus } from '../components/shared';
 import { useSearch } from '../hooks/useSearch';
 import type { Note } from '../types/note';
+import { SYNC_CAPACITY_BLOCK_MESSAGE } from '../services/storage';
 import '../index.css';
 
 const WindowApp: React.FC = () => {
@@ -34,6 +35,7 @@ const WindowApp: React.FC = () => {
     // 左側面板寬度（px），預設 384（即 w-96）
     const [leftPanelWidth, setLeftPanelWidth] = useState(384);
     const isDraggingRef = useRef(false);
+    const hasShownAutoSaveErrorRef = useRef(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const {
         searchQuery,
@@ -94,19 +96,34 @@ const WindowApp: React.FC = () => {
     };
 
     const handleSaveNote = async (note: Note) => {
-        if (note.id) {
-            await updateNote(note);
-        } else {
-            await createNote(note.title, note.content, note.tags, note.editMode, note.pageContext);
+        try {
+            if (note.id) {
+                await updateNote(note);
+            } else {
+                await createNote(note.title, note.content, note.tags, note.editMode, note.pageContext);
+            }
+            setIsCreating(false);
+            selectNote(null);
+        } catch (error) {
+            const message = error instanceof Error ? error.message : SYNC_CAPACITY_BLOCK_MESSAGE;
+            alert(message);
         }
-        setIsCreating(false);
-        selectNote(null);
     };
 
     // 自動儲存：只更新筆記，不關閉編輯器
     const handleAutoSaveNote = async (note: Note) => {
         if (note.id) {
-            await updateNote(note);
+            try {
+                await updateNote(note);
+                hasShownAutoSaveErrorRef.current = false;
+            } catch (error) {
+                console.warn('自動儲存失敗:', error);
+                const message = error instanceof Error ? error.message : SYNC_CAPACITY_BLOCK_MESSAGE;
+                if (!hasShownAutoSaveErrorRef.current) {
+                    alert(message);
+                    hasShownAutoSaveErrorRef.current = true;
+                }
+            }
         }
     };
 

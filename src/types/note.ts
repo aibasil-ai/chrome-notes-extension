@@ -24,6 +24,7 @@ export interface AppSettings {
     autoSaveInterval: number;       // 自動儲存間隔（毫秒）
     capturePageByDefault: boolean;  // 預設是否記錄網頁資訊
     showNoteSizeIcon: boolean;      // 是否顯示筆記容量圖示
+    allowLocalSaveWhenSyncFull: boolean; // 同步滿載時是否允許僅儲存本機
     theme: 'light' | 'dark' | 'auto';
 }
 
@@ -38,6 +39,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
     autoSaveInterval: 3000,
     capturePageByDefault: false,
     showNoteSizeIcon: true,
+    allowLocalSaveWhenSyncFull: false,
     theme: 'auto',
 };
 

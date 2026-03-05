@@ -67,8 +67,7 @@ export const NoteItem: React.FC<NoteItemProps> = ({
                 <span>{formatDate(note.updatedAt)}</span>
                 {showNoteSizeIcon && (
                     <span
-                        className="text-[11px] leading-none text-gray-400 cursor-help tabular-nums"
-                        title={`容量：${noteSize}`}
+                        className="text-[11px] leading-none text-gray-400 tabular-nums"
                     >
                         {noteSize}
                     </span>
