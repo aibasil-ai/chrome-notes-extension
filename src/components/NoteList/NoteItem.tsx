@@ -17,6 +17,9 @@ export const NoteItem: React.FC<NoteItemProps> = ({
     onClick,
     onDelete,
 }) => {
+    const metaEmojiClassName =
+        'inline-flex h-[14px] w-[14px] items-center justify-center leading-none align-middle';
+
     const formatDate = (timestamp: number) => {
         const date = new Date(timestamp);
         return date.toLocaleDateString('zh-TW', {
@@ -60,10 +63,17 @@ export const NoteItem: React.FC<NoteItemProps> = ({
 
             <div className="flex items-center gap-2 mt-2 text-xs text-gray-500 flex-wrap">
                 <span>{formatDate(note.updatedAt)}</span>
-                <span className="text-gray-400 cursor-help" title={`容量：${noteSize}`}>📦</span>
+                <span
+                    className={`${metaEmojiClassName} text-gray-400 cursor-help`}
+                    style={{ fontSize: '14px' }}
+                    title={`容量：${noteSize}`}
+                >
+                    📦
+                </span>
                 {isUnsynced && (
                     <span
-                        className="text-amber-500 cursor-help"
+                        className={`${metaEmojiClassName} text-amber-500 cursor-help`}
+                        style={{ fontSize: '14px', transform: 'translateY(-1.5px)' }}
                         title="此筆記未同步至雲端（超過儲存限制）"
                     >
                         ⚠️
