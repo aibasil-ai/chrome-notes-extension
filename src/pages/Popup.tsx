@@ -120,7 +120,7 @@ const PopupApp: React.FC = () => {
                     {/* 筆記列表 */}
                     <div className="flex-1 min-h-0 overflow-y-auto">
                         <NoteList
-                            notes={filteredNotes.slice(0, 10)}
+                            notes={filteredNotes}
                             selectedNoteId={selectedNoteId}
                             unsyncedNoteIds={unsyncedNoteIds}
                             onSelectNote={selectNote}
