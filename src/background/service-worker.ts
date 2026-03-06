@@ -28,10 +28,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
     }
 
     if (message.action === 'switchToPopup') {
-        // 切換為 Popup 模式：關閉側邊欄攔截，並立即開啟 popup
+        // 切換為 Popup 模式：下次點圖示開啟 popup
         chrome.sidePanel
             .setPanelBehavior({ openPanelOnActionClick: false })
-            .then(() => chrome.action.openPopup())
             .then(() => sendResponse({ success: true }))
             .catch((error) => {
                 console.error('切換 Popup 失敗:', error);

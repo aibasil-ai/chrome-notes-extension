@@ -9,7 +9,7 @@ import { Settings } from '../components/Settings';
 import { Button, SyncStorageStatus } from '../components/shared';
 import { useSearch } from '../hooks/useSearch';
 import type { Note } from '../types/note';
-import { SYNC_CAPACITY_BLOCK_MESSAGE } from '../services/storage';
+import { SYNC_CAPACITY_FULL_BLOCKED, SYNC_CAPACITY_FULL_LOCAL_ONLY } from '../services/storage';
 import '../index.css';
 
 const WindowApp: React.FC = () => {
@@ -105,8 +105,13 @@ const WindowApp: React.FC = () => {
             setIsCreating(false);
             selectNote(null);
         } catch (error) {
-            const message = error instanceof Error ? error.message : SYNC_CAPACITY_BLOCK_MESSAGE;
+            const message = error instanceof Error ? error.message : SYNC_CAPACITY_FULL_BLOCKED;
             alert(message);
+            // 若為「僅存本機」警告，代表資料其實已成功存入本機，因此仍應關閉編輯器
+            if (error instanceof Error && error.message === SYNC_CAPACITY_FULL_LOCAL_ONLY) {
+                setIsCreating(false);
+                selectNote(null);
+            }
         }
     };
 
@@ -118,7 +123,7 @@ const WindowApp: React.FC = () => {
                 hasShownAutoSaveErrorRef.current = false;
             } catch (error) {
                 console.warn('自動儲存失敗:', error);
-                const message = error instanceof Error ? error.message : SYNC_CAPACITY_BLOCK_MESSAGE;
+                const message = error instanceof Error ? error.message : SYNC_CAPACITY_FULL_BLOCKED;
                 if (!hasShownAutoSaveErrorRef.current) {
                     alert(message);
                     hasShownAutoSaveErrorRef.current = true;

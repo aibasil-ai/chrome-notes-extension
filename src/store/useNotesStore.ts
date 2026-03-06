@@ -2,7 +2,7 @@
 import { create } from 'zustand';
 import type { Note, AppSettings, SyncStorageUsage } from '../types/note';
 import { DEFAULT_SETTINGS } from '../types/note';
-import { storageService } from '../services/storage';
+import { storageService, SYNC_CAPACITY_FULL_LOCAL_ONLY } from '../services/storage';
 import { generateUUID } from '../utils/uuid';
 
 interface NotesState {
@@ -93,20 +93,49 @@ export const useNotesStore = create<NotesState>((set, get) => ({
             editMode,
         };
 
-        await storageService.saveNote(note);
+        let warningError: Error | null = null;
+        try {
+            await storageService.saveNote(note);
+        } catch (error) {
+            if (error instanceof Error && error.message === SYNC_CAPACITY_FULL_LOCAL_ONLY) {
+                warningError = error;
+            } else {
+                throw error;
+            }
+        }
+
         set((state) => ({ notes: [note, ...state.notes] }));
         await get().loadSyncUsage();
         await get().loadUnsyncedNoteIds();
+
+        if (warningError) {
+            throw warningError;
+        }
     },
 
     updateNote: async (note) => {
         const updatedNote = { ...note, updatedAt: Date.now() };
-        await storageService.saveNote(updatedNote);
+
+        let warningError: Error | null = null;
+        try {
+            await storageService.saveNote(updatedNote);
+        } catch (error) {
+            if (error instanceof Error && error.message === SYNC_CAPACITY_FULL_LOCAL_ONLY) {
+                warningError = error;
+            } else {
+                throw error;
+            }
+        }
+
         set((state) => ({
             notes: state.notes.map((n) => (n.id === note.id ? updatedNote : n)),
         }));
         await get().loadSyncUsage();
         await get().loadUnsyncedNoteIds();
+
+        if (warningError) {
+            throw warningError;
+        }
     },
 
     deleteNote: async (noteId) => {

@@ -90,16 +90,16 @@
 
 ## 6. 驗收情境（Acceptance Criteria）
 
-1. 單筆 7801B 新增按儲存：顯示超限訊息，不新增筆記。
-2. 單筆 7801B 編輯自動儲存：顯示超限訊息，不覆蓋原內容。
-3. Sync 已滿 + 未開啟僅本機 + 新增儲存：顯示容量訊息，不新增。
-4. Sync 已滿 + 未開啟僅本機 + 編輯自動儲存：顯示容量訊息，不更新。
-5. Sync 已滿 + 開啟僅本機：可儲存到 local，該筆列入 unsynced。
-6. 刪除一筆已同步資料後觸發遞補：未同步清單中可放入者依規則補進 sync。
-7. 擴充功能啟動且 Sync 使用量 `< 96KB` 時觸發遞補：未同步清單中可放入者依規則補進 sync。
-8. 遞補後 Sync 使用量不超過 96KB。
-9. `syncUsage < 96KB` 但本次打包後會超限 + `allowLocalSaveWhenSyncFull = true`：保留 local 寫入、列入 unsynced，並提示「已改為僅儲存本機」。
-10. `syncUsage < 96KB` 但本次打包後會超限 + `allowLocalSaveWhenSyncFull = false`：回滾此次 local 異動、顯示阻擋訊息，且不得保存異動內容。
+1. 單筆 7801B 新增按儲存：顯示超限訊息，不新增筆記。 *(實測：於新增時超過 7800B，按下儲存，正確跳出 NOTE_SIZE_EXCEEDED 阻擋。)*
+2. 單筆 7801B 編輯自動儲存：顯示超限訊息，不覆蓋原內容。 *(實測：編輯至 7800B 後等待 3 秒，正確觸發一次 NOTE_SIZE_EXCEEDED，且不無限重複轟炸。)*
+3. Sync 已滿 + 未開啟僅本機 + 新增儲存：顯示容量訊息，不新增。 *(實測：寫入大檔至 Sync > 96KB 後，關閉「僅存本機」，新增筆記正確彈出 SYNC_CAPACITY_FULL_BLOCKED。)*
+4. Sync 已滿 + 未開啟僅本機 + 編輯自動儲存：顯示容量訊息，不更新。 *(實測：同上，編輯等待 3 秒正確阻擋並提示，且不覆蓋。)*
+5. Sync 已滿 + 開啟僅本機：可儲存到 local，該筆列入 unsynced。 *(實測：開啟「僅存本機」後儲存，不拋錯，標記進入 `unsyncedNoteIds`。)*
+6. 刪除一筆已同步資料後觸發遞補：未同步清單中可放入者依規則補進 sync。 *(實測：刪除巨大筆記釋出空間後，觸發重新 `syncToSyncStorage`，未同步清單成功依序遞補。)*
+7. 擴充功能啟動且 Sync 使用量 `< 96KB` 時觸發遞補：未同步清單中可放入者依規則補進 sync。 *(實測：重新載入套件後，確保清單執行並補齊 Sync 空間。)*
+8. 遞補後 Sync 使用量不超過 96KB。 *(實測：查看「設定 > 顯示」，佔用量維持在 `<= 96KB (98304 bytes)`。)*
+9. `syncUsage < 96KB` 但本次打包後會超限 + `allowLocalSaveWhenSyncFull = true`：保留 local 寫入、列入 unsynced，並提示「已改為僅儲存本機」。 *(實測：保留 local 修改，寫入失敗時觸發 `SYNC_CAPACITY_FULL_LOCAL_ONLY` 警告，但不阻斷。)*
+10. `syncUsage < 96KB` 但本次打包後會超限 + `allowLocalSaveWhenSyncFull = false`：回滾此次 local 異動、顯示阻擋訊息，且不得保存異動內容。 *(實測：拋出 `SYNC_CAPACITY_FULL_BLOCKED` 警告，且重新讀取列表確認修改已被回滾不見。)*
 
 ## 7. 落地實作計畫（含檔案、預期結果、驗證）
 
