@@ -38,6 +38,15 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                     onChange={(e) => onSearchChange(e.target.value)}
                     className="flex-1 min-w-0 px-3 py-1.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
+                {searchQuery && (
+                    <button
+                        onClick={() => onSearchChange('')}
+                        className="p-1.5 border rounded-md hover:bg-gray-100 transition-colors"
+                        title="清除搜尋"
+                    >
+                        ✕
+                    </button>
+                )}
                 <button
                     onClick={() => setShowTagFilter(!showTagFilter)}
                     className={`p-1.5 border rounded-md transition-colors ${showTagFilter || selectedTags.length > 0
@@ -48,15 +57,6 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                 >
                     🏷️
                 </button>
-                {searchQuery && (
-                    <button
-                        onClick={() => onSearchChange('')}
-                        className="p-1.5 border rounded-md hover:bg-gray-100 transition-colors"
-                        title="清除搜尋"
-                    >
-                        ✕
-                    </button>
-                )}
                 {/* 插入右側額外的按鈕 */}
                 {actions}
             </div>
