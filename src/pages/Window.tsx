@@ -97,8 +97,21 @@ const WindowApp: React.FC = () => {
 
     const handleSaveNote = async (note: Note) => {
         try {
-            if (note.id) {
-                await updateNote(note);
+            const fallbackSelectedNote =
+                !note.id && selectedNoteId ? notes.find((n) => n.id === selectedNoteId) : null;
+
+            if (note.id || fallbackSelectedNote) {
+                const noteToUpdate = note.id
+                    ? note
+                    : {
+                        ...fallbackSelectedNote!,
+                        title: note.title,
+                        content: note.content,
+                        tags: note.tags,
+                        editMode: note.editMode,
+                        pageContext: note.pageContext,
+                    };
+                await updateNote(noteToUpdate);
             } else {
                 await createNote(note.title, note.content, note.tags, note.editMode, note.pageContext);
             }
@@ -121,8 +134,16 @@ const WindowApp: React.FC = () => {
             if (note.id) {
                 await updateNote(note);
             } else {
-                const newId = await createNote(note.title, note.content, note.tags, note.editMode, note.pageContext);
+                const newId = await createNote(
+                    note.title,
+                    note.content,
+                    note.tags,
+                    note.editMode,
+                    note.pageContext,
+                    { suppressLocalOnlyWarning: true }
+                );
                 selectNote(newId);
+                setIsCreating(false);
             }
             hasShownAutoSaveErrorRef.current = false;
         } catch (error) {

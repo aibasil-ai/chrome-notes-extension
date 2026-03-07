@@ -20,7 +20,14 @@ interface NotesState {
     loadUnsyncedNoteIds: () => Promise<void>;
 
     // 筆記 CRUD
-    createNote: (title: string, content: string, tags: string[], editMode: Note['editMode'], pageContext?: Note['pageContext']) => Promise<string>;
+    createNote: (
+        title: string,
+        content: string,
+        tags: string[],
+        editMode: Note['editMode'],
+        pageContext?: Note['pageContext'],
+        options?: { suppressLocalOnlyWarning?: boolean }
+    ) => Promise<string>;
     updateNote: (note: Note) => Promise<void>;
     deleteNote: (noteId: string) => Promise<void>;
     selectNote: (noteId: string | null) => void;
@@ -80,7 +87,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         }
     },
 
-    createNote: async (title, content, tags, editMode, pageContext) => {
+    createNote: async (title, content, tags, editMode, pageContext, options) => {
         const now = Date.now();
         const note: Note = {
             id: generateUUID(),
@@ -108,7 +115,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         await get().loadSyncUsage();
         await get().loadUnsyncedNoteIds();
 
-        if (warningError) {
+        if (warningError && !options?.suppressLocalOnlyWarning) {
             throw warningError;
         }
 
