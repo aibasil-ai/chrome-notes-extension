@@ -131,9 +131,13 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         onSave(savedNote);
     };
 
-    // 自動儲存（只對已存在的筆記生效，不關閉編輯器）
+    // 自動儲存（不關閉編輯器）
     const handleAutoSave = async () => {
-        if (!note || !onAutoSave) return; // 新建筆記不自動儲存
+        if (!onAutoSave) return;
+        
+        // 如果是新建筆記，且標題與內容皆為空，則不自動儲存
+        if (!note && !title.trim() && !content.trim()) return;
+
         const savedNote = await buildNote();
         onAutoSave(savedNote);
     };

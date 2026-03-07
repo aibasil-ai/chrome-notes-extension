@@ -74,17 +74,20 @@ const SidebarApp: React.FC = () => {
     };
 
     const handleAutoSaveNote = async (note: Note) => {
-        if (note.id) {
-            try {
+        try {
+            if (note.id) {
                 await updateNote(note);
-                hasShownAutoSaveErrorRef.current = false;
-            } catch (error) {
-                console.warn('自動儲存失敗:', error);
-                const message = error instanceof Error ? error.message : SYNC_CAPACITY_FULL_BLOCKED;
-                if (!hasShownAutoSaveErrorRef.current) {
-                    alert(message);
-                    hasShownAutoSaveErrorRef.current = true;
-                }
+            } else {
+                const newId = await createNote(note.title, note.content, note.tags, note.editMode, note.pageContext);
+                selectNote(newId);
+            }
+            hasShownAutoSaveErrorRef.current = false;
+        } catch (error) {
+            console.warn('自動儲存失敗:', error);
+            const message = error instanceof Error ? error.message : SYNC_CAPACITY_FULL_BLOCKED;
+            if (!hasShownAutoSaveErrorRef.current) {
+                alert(message);
+                hasShownAutoSaveErrorRef.current = true;
             }
         }
     };

@@ -20,7 +20,7 @@ interface NotesState {
     loadUnsyncedNoteIds: () => Promise<void>;
 
     // 筆記 CRUD
-    createNote: (title: string, content: string, tags: string[], editMode: Note['editMode'], pageContext?: Note['pageContext']) => Promise<void>;
+    createNote: (title: string, content: string, tags: string[], editMode: Note['editMode'], pageContext?: Note['pageContext']) => Promise<string>;
     updateNote: (note: Note) => Promise<void>;
     deleteNote: (noteId: string) => Promise<void>;
     selectNote: (noteId: string | null) => void;
@@ -111,6 +111,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         if (warningError) {
             throw warningError;
         }
+
+        return note.id;
     },
 
     updateNote: async (note) => {
