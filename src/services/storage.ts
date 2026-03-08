@@ -2,7 +2,8 @@
 import type { Note, AppSettings, SyncStorageUsage } from '../types/note';
 import { DEFAULT_SETTINGS } from '../types/note';
 
-const MAX_SYNC_NOTES = 50;
+// 防呆上限：僅作為安全值，實際容量由 byte 規則主導
+const MAX_SYNC_NOTES = 512;
 
 // 容量與阻擋策略常數
 export const SYNC_BLOCK_LIMIT_BYTES = 96 * 1024; // 96KB
@@ -29,9 +30,10 @@ export class StorageService {
         }
     }
 
-    // 儲存筆記（同時寫入 local + sync）
+    // 儲存筆記 — 編輯者承擔策略（Caller-Pays Eviction）
+    // 只評估目標筆記 N 能否寫入 sync，不重排整包 synced 集合。
     async saveNote(note: Note): Promise<void> {
-        // 1. 計算單筆大小，超過 7800B 則直接阻擋
+        // 1. 單筆限制檢查
         const noteJson = JSON.stringify(note);
         const noteSize = this.getByteLength(noteJson);
         if (noteSize > NOTE_MAX_BYTES) {
@@ -51,10 +53,9 @@ export class StorageService {
         const settings = await this.getSettings();
         const bytesInUse = await chrome.storage.sync.getBytesInUse(null);
 
-        // 規則 R1：Sync 96KB 滿載阻擋
+        // 2. Sync 96KB 滿載阻擋
         if (bytesInUse >= SYNC_BLOCK_LIMIT_BYTES) {
             if (settings.allowLocalSaveWhenSyncFull) {
-                // 僅存 local，標記 unsynced
                 await chrome.storage.local.set({ notes });
                 await this.refreshUnsyncedNoteIds(notes);
                 throw new Error(SYNC_CAPACITY_FULL_LOCAL_ONLY);
@@ -63,34 +64,36 @@ export class StorageService {
             }
         }
 
+        // 3. 寫入 local
         await chrome.storage.local.set({ notes });
-        await this.syncToSyncStorage(notes);
 
-        // 如果 sync 後會突破 96KB，syncToSyncStorage 不會寫入該筆。我們檢查是否真的寫進去了。
-        const afterSyncedSet = await this.getCurrentSyncedNoteIds();
-        const currentNoteSynced = afterSyncedSet.has(note.id);
+        // 4. 只嘗試同步目標筆記 N（不重排其他已同步筆記）
+        const synced = await this.trySyncSingleNote(note, notes);
 
-        if (!currentNoteSynced) {
+        if (!synced) {
             if (settings.allowLocalSaveWhenSyncFull) {
-                // 保留 local 寫入，標記 unsynced，可提示改為僅本機
-                // 必須重新整理 unsynced 狀態，否則 UI 不會顯示該圖示
-                await this.refreshUnsyncedNoteIds(notes);
                 throw new Error(SYNC_CAPACITY_FULL_LOCAL_ONLY);
             } else {
-                // 回滾 local 異動並提示阻擋
+                // 回滾 local 異動
                 await chrome.storage.local.set({ notes: currentNotes });
-                await this.syncToSyncStorage(currentNotes);
                 throw new Error(SYNC_CAPACITY_FULL_BLOCKED);
             }
         }
     }
 
-    // 刪除筆記
+    // 刪除筆記 — 刪除後觸發遞補程序
     async deleteNote(noteId: string): Promise<void> {
         const notes = await this.getAllNotes();
         const filteredNotes = notes.filter((n) => n.id !== noteId);
         await chrome.storage.local.set({ notes: filteredNotes });
-        await this.syncToSyncStorage(filteredNotes);
+
+        // 從 sync 中移除該筆
+        const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+        const syncedWithout = syncedNotes.filter((n) => n.id !== noteId);
+        await this.writeChunksToSync(syncedWithout);
+
+        // 遞補：從 unsynced 候選中補回可放入的筆記
+        await this.refillSync(filteredNotes);
     }
 
     // 取得字串的 UTF-8 byte 大小
@@ -145,157 +148,159 @@ export class StorageService {
         await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
     }
 
-    // 取得目前已同步到 sync storage 的筆記 ID 集合
-    private async getCurrentSyncedNoteIds(): Promise<Set<string>> {
-        const syncedNotes = await this.getSyncedNotesFromSyncStorage();
-        const syncedIds = new Set<string>();
-        for (const syncedNote of syncedNotes) {
-            syncedIds.add(syncedNote.id);
+    // 嘗試將單筆筆記同步到 sync storage（不重排其他已同步筆記）
+    // 回傳 true 表示成功同步，false 表示無法放入
+    private async trySyncSingleNote(note: Note, allLocalNotes: Note[]): Promise<boolean> {
+        try {
+            const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+            const existsInSync = syncedNotes.some((n) => n.id === note.id);
+
+            // 建構新的 sync 清單：替換或新增目標筆記
+            let newSyncList: Note[];
+            if (existsInSync) {
+                newSyncList = syncedNotes.map((n) => (n.id === note.id ? note : n));
+            } else {
+                if (syncedNotes.length >= MAX_SYNC_NOTES) {
+                    // 防呆：已達安全上限，不再新增
+                    const unsyncedIds = this.calculateUnsyncedNoteIds(allLocalNotes, syncedNotes);
+                    await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
+                    return false;
+                }
+                newSyncList = [...syncedNotes, note];
+            }
+
+            // 估算寫入後的總大小
+            const totalSize = this.getByteLength(JSON.stringify(newSyncList));
+            const bufferSize = newSyncList.length * 50 + 200;
+
+            if (totalSize + bufferSize > SYNC_BLOCK_LIMIT_BYTES) {
+                // N 寫入後會超限
+                if (existsInSync) {
+                    // N 本身更新後無法再放入 sync → 從 sync 移除 N
+                    const withoutNote = syncedNotes.filter((n) => n.id !== note.id);
+                    await this.writeChunksToSync(withoutNote);
+                    console.log(`筆記 "${note.title}" 更新後超出 sync 容量限制，移出 sync`);
+                }
+                const finalSynced = existsInSync
+                    ? syncedNotes.filter((n) => n.id !== note.id)
+                    : syncedNotes;
+                const unsyncedIds = this.calculateUnsyncedNoteIds(allLocalNotes, finalSynced);
+                await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
+                return false;
+            }
+
+            // N 可以寫入 sync
+            await this.writeChunksToSync(newSyncList);
+            const unsyncedIds = this.calculateUnsyncedNoteIds(allLocalNotes, newSyncList);
+            await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
+            return true;
+        } catch (error) {
+            console.warn('Failed to sync single note:', error);
+            const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+            const unsyncedIds = this.calculateUnsyncedNoteIds(allLocalNotes, syncedNotes);
+            await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
+            return false;
         }
-        return syncedIds;
     }
 
-    // 同步到 sync storage（分 chunk 儲存，每個 chunk 不超過 8KB）
-    // 策略：依規則 R2 釋出後遞補，以及正常寫入
-    private async syncToSyncStorage(notes: Note[]): Promise<void> {
+    // 遞補同步：從 unsynced 候選中補回可放入 sync 的筆記
+    // 觸發時機：刪除筆記後、擴充功能啟動時
+    private async refillSync(allLocalNotes: Note[]): Promise<void> {
         try {
-            // 1. 取得目前已同步的筆記 ID
-            const currentSyncedIds = await this.getCurrentSyncedNoteIds();
+            const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+            const syncedIds = new Set(syncedNotes.map((n) => n.id));
 
-            // 2. 分離已同步 vs 新/未同步筆記
-            const alreadySynced = notes.filter((n) => currentSyncedIds.has(n.id));
-            const unsyncedCandidates = notes.filter((n) => !currentSyncedIds.has(n.id));
+            // 候選：不在 sync 中且單筆 ≤ 7800B
+            const candidates = allLocalNotes
+                .filter((n) => !syncedIds.has(n.id))
+                .filter((n) => this.getByteLength(JSON.stringify(n)) <= NOTE_MAX_BYTES);
 
-            // R2 規則排序：createdAt 由舊到新排序；若相同則以 id 字典序排序
-            unsyncedCandidates.sort((a, b) => {
-                if (a.createdAt !== b.createdAt) {
-                    return a.createdAt - b.createdAt;
-                }
+            // 排序：createdAt 由舊到新；若相同則以 id 字典序排序
+            candidates.sort((a, b) => {
+                if (a.createdAt !== b.createdAt) return a.createdAt - b.createdAt;
                 return a.id.localeCompare(b.id);
             });
 
-            const syncList: Note[] = [];
-
-            // 3a. 先放已同步的筆記（保留舊資料）
-            for (const note of alreadySynced) {
+            const syncList = [...syncedNotes];
+            for (const note of candidates) {
                 if (syncList.length >= MAX_SYNC_NOTES) break;
 
-                const noteByteSize = this.getByteLength(JSON.stringify(note));
-                if (noteByteSize > NOTE_MAX_BYTES) {
-                    console.warn(`筆記 "${note.title}" 超過限度 (${noteByteSize} bytes)，跳過同步`);
-                    continue; // 規格上超過 7800 不能存，防範極端狀況
-                }
+                const tempList = [...syncList, note];
+                const totalSize = this.getByteLength(JSON.stringify(tempList));
+                const bufferSize = tempList.length * 50 + 200;
 
-                // 估算加入後的總大小
-                const tempSyncList = [...syncList, note];
-                const newTotalSize = this.getByteLength(JSON.stringify(tempSyncList));
-                // 每一個 chunk 會浪費一些 metadata (key name, etc.)，以每個 note 額外 50 bytes 作為安全緩衝
-                const bufferSize = tempSyncList.length * 50 + 200;
-
-                if (newTotalSize + bufferSize > SYNC_BLOCK_LIMIT_BYTES) {
-                    console.log(`已同步筆記 "${note.title}" 因更新後加上安全緩衝超出 96KB 限制，移出 sync`);
+                if (totalSize + bufferSize <= SYNC_BLOCK_LIMIT_BYTES) {
+                    syncList.push(note);
+                } else {
+                    // 此筆放不下，繼續嘗試更小的候選
                     continue;
                 }
-
-                syncList.push(note);
             }
 
-            // 3b. R2 遞補規則：依序掃描、依序嘗試寫入候選集
-            let addedInThisRound = true;
-            let remainingCandidates = [...unsyncedCandidates];
-
-            while (addedInThisRound && remainingCandidates.length > 0 && syncList.length < MAX_SYNC_NOTES) {
-                addedInThisRound = false;
-                const nextRemainingCandidates: Note[] = [];
-
-                for (const note of remainingCandidates) {
-                    if (syncList.length >= MAX_SYNC_NOTES) break;
-
-                    const noteByteSize = this.getByteLength(JSON.stringify(note));
-                    if (noteByteSize > NOTE_MAX_BYTES) {
-                        continue;
-                    }
-
-                    const tempSyncList = [...syncList, note];
-                    const newTotalSize = this.getByteLength(JSON.stringify(tempSyncList));
-                    const bufferSize = tempSyncList.length * 50 + 200;
-
-                    if (newTotalSize + bufferSize <= SYNC_BLOCK_LIMIT_BYTES) {
-                        // 寫入後 Sync 使用量 <= 96KB，立即寫入該筆並自候選集中移除
-                        syncList.push(note);
-                        addedInThisRound = true;
-                    } else {
-                        // 若該筆寫入後會使 Sync 使用量 > 96KB，則略過該筆，放入下一次掃描
-                        nextRemainingCandidates.push(note);
-                    }
-                }
-                remainingCandidates = nextRemainingCandidates;
+            // 只有在有新增筆記時才重寫 sync
+            if (syncList.length > syncedNotes.length) {
+                await this.writeChunksToSync(syncList);
             }
 
-            // 4. 將筆記分 chunk，每個 chunk 不超過 CHUNK_SIZE_LIMIT（以 byte 計算）
-            const chunks: string[] = [];
-            let currentChunk: Note[] = [];
-            let currentChunkByteSize = 2; // 初始為 "[]" 的 byte 長度
-
-            for (const note of syncList) {
-                const noteJson = JSON.stringify(note);
-                const noteByteSize = this.getByteLength(noteJson);
-
-                const additionalByteSize = noteByteSize + (currentChunk.length > 0 ? 1 : 0); // +1 為逗號
-
-                if (currentChunkByteSize + additionalByteSize > CHUNK_SIZE_LIMIT && currentChunk.length > 0) {
-                    // 目前 chunk 已滿，儲存並開始新 chunk
-                    chunks.push(JSON.stringify(currentChunk));
-                    currentChunk = [note];
-                    currentChunkByteSize = 2 + noteByteSize;
-                } else {
-                    currentChunk.push(note);
-                    currentChunkByteSize += additionalByteSize;
-                }
-            }
-
-            // 最後一個 chunk
-            if (currentChunk.length > 0) {
-                chunks.push(JSON.stringify(currentChunk));
-            }
-
-            // 5. 寫入所有 chunks
-            const setData: Record<string, string> = {
-                notes_chunk_count: String(chunks.length),
-            };
-            for (let i = 0; i < chunks.length; i++) {
-                setData[`${CHUNK_KEY_PREFIX}${i}`] = chunks[i];
-            }
-            await chrome.storage.sync.set(setData);
-
-            // 6. 清除多餘的舊 chunk keys
-            const allSyncData = await chrome.storage.sync.get(null);
-            const keysToRemove: string[] = [];
-            for (const key of Object.keys(allSyncData)) {
-                if (key.startsWith(CHUNK_KEY_PREFIX)) {
-                    const index = parseInt(key.replace(CHUNK_KEY_PREFIX, ''), 10);
-                    if (!isNaN(index) && index >= chunks.length) {
-                        keysToRemove.push(key);
-                    }
-                }
-            }
-            // 也移除舊格式的 recentNotes key
-            if ('recentNotes' in allSyncData) {
-                keysToRemove.push('recentNotes');
-            }
-            if (keysToRemove.length > 0) {
-                await chrome.storage.sync.remove(keysToRemove);
-            }
-
-            // 7. 記錄未同步的筆記 ID（用版本比對，避免同 id 舊版本被誤判為已同步）
-            const unsyncedIds = this.calculateUnsyncedNoteIds(notes, syncList);
+            const unsyncedIds = this.calculateUnsyncedNoteIds(allLocalNotes, syncList);
             await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
         } catch (error) {
-            console.warn('Failed to sync to sync storage:', error);
-            // 同步失敗時，仍依照目前 sync 內殘留版本更新未同步清單。
+            console.warn('Failed to refill sync storage:', error);
             const syncedNotes = await this.getSyncedNotesFromSyncStorage();
-            const unsyncedIds = this.calculateUnsyncedNoteIds(notes, syncedNotes);
+            const unsyncedIds = this.calculateUnsyncedNoteIds(allLocalNotes, syncedNotes);
             await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
+        }
+    }
+
+    // 將 sync 清單寫入 chunk storage 並清除多餘的舊 chunk
+    private async writeChunksToSync(syncList: Note[]): Promise<void> {
+        const chunks: string[] = [];
+        let currentChunk: Note[] = [];
+        let currentChunkByteSize = 2; // "[]" 的 byte 長度
+
+        for (const note of syncList) {
+            const noteJson = JSON.stringify(note);
+            const noteByteSize = this.getByteLength(noteJson);
+            const additionalByteSize = noteByteSize + (currentChunk.length > 0 ? 1 : 0);
+
+            if (currentChunkByteSize + additionalByteSize > CHUNK_SIZE_LIMIT && currentChunk.length > 0) {
+                chunks.push(JSON.stringify(currentChunk));
+                currentChunk = [note];
+                currentChunkByteSize = 2 + noteByteSize;
+            } else {
+                currentChunk.push(note);
+                currentChunkByteSize += additionalByteSize;
+            }
+        }
+
+        if (currentChunk.length > 0) {
+            chunks.push(JSON.stringify(currentChunk));
+        }
+
+        const setData: Record<string, string> = {
+            notes_chunk_count: String(chunks.length),
+        };
+        for (let i = 0; i < chunks.length; i++) {
+            setData[`${CHUNK_KEY_PREFIX}${i}`] = chunks[i];
+        }
+        await chrome.storage.sync.set(setData);
+
+        // 清除多餘的舊 chunk keys
+        const allSyncData = await chrome.storage.sync.get(null);
+        const keysToRemove: string[] = [];
+        for (const key of Object.keys(allSyncData)) {
+            if (key.startsWith(CHUNK_KEY_PREFIX)) {
+                const index = parseInt(key.replace(CHUNK_KEY_PREFIX, ''), 10);
+                if (!isNaN(index) && index >= chunks.length) {
+                    keysToRemove.push(key);
+                }
+            }
+        }
+        if ('recentNotes' in allSyncData) {
+            keysToRemove.push('recentNotes');
+        }
+        if (keysToRemove.length > 0) {
+            await chrome.storage.sync.remove(keysToRemove);
         }
     }
 
