@@ -122,8 +122,9 @@ const PopupApp: React.FC = () => {
     };
 
     const handleOpenWindow = () => {
-        chrome.runtime.sendMessage({ action: 'openWindow' });
-        window.close();
+        chrome.runtime.sendMessage({ action: 'openWindow' }, () => {
+            window.close();
+        });
     };
 
     const selectedNote = notes.find((n) => n.id === selectedNoteId) || null;

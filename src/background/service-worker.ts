@@ -48,7 +48,9 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             );
             if (existingWindow?.id) {
                 // 已有獨立視窗，聚焦它
-                chrome.windows.update(existingWindow.id, { focused: true });
+                chrome.windows.update(existingWindow.id, { focused: true }, () => {
+                    sendResponse({ success: true });
+                });
             } else {
                 // 沒有獨立視窗，建立新的
                 chrome.windows.create({
@@ -56,9 +58,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
                     type: 'popup',
                     width: 900,
                     height: 700,
+                }, () => {
+                    sendResponse({ success: true });
                 });
             }
         });
-        sendResponse({ success: true });
+        return true;
     }
 });
