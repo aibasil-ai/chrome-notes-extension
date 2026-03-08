@@ -30,7 +30,7 @@ export class ExportService {
 
             // 驗證每筆筆記
             const notes: Note[] = data.map((item: Record<string, unknown>, index: number) => {
-                if (!item.id || !item.title) {
+                if (!item.id || typeof item.title !== 'string') {
                     throw new Error(`第 ${index + 1} 筆筆記格式錯誤：缺少必要欄位`);
                 }
 

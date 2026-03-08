@@ -204,8 +204,8 @@ export class StorageService {
     }
 
     // 遞補同步：從 unsynced 候選中補回可放入 sync 的筆記
-    // 觸發時機：刪除筆記後、擴充功能啟動時
-    private async refillSync(allLocalNotes: Note[]): Promise<void> {
+    // 觸發時機：刪除筆記後、擴充功能啟動時、手動重試同步
+    async refillSync(allLocalNotes: Note[]): Promise<void> {
         try {
             const syncedNotes = await this.getSyncedNotesFromSyncStorage();
             const syncedIds = new Set(syncedNotes.map((n) => n.id));

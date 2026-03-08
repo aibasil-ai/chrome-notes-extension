@@ -52,6 +52,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
         try {
             const notes = await storageService.getAllNotes();
             set({ notes, isLoading: false });
+            // 啟動時觸發遞補，嘗試將 unsynced 筆記補回 sync
+            await storageService.refillSync(notes);
             await get().loadUnsyncedNoteIds();
         } catch (error) {
             console.error('Failed to load notes:', error);
