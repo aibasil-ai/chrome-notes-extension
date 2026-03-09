@@ -89,7 +89,7 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
                 capturedAt: Date.now(),
             };
         } catch (error) {
-            console.error('Failed to capture page context:', error);
+            console.warn('Failed to capture page context:', error);
             return undefined;
         }
     };

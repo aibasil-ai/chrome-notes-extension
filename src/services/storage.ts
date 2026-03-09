@@ -310,7 +310,7 @@ export class StorageService {
             const result = await chrome.storage.sync.get('settings') as { settings?: AppSettings };
             return result.settings || DEFAULT_SETTINGS;
         } catch (error) {
-            console.error('Failed to get settings:', error);
+            console.warn('Failed to get settings:', error);
             return DEFAULT_SETTINGS;
         }
     }
@@ -331,7 +331,7 @@ export class StorageService {
 
             return { bytesInUse, quotaBytes, percentage };
         } catch (error) {
-            console.error('Failed to get sync storage usage:', error);
+            console.warn('Failed to get sync storage usage:', error);
             return { bytesInUse: 0, quotaBytes: 102400, percentage: 0 };
         }
     }

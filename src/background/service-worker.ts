@@ -7,7 +7,7 @@ chrome.runtime.onInstalled.addListener(() => {
 // 預設不用側邊欄取代 popup
 chrome.sidePanel
     .setPanelBehavior({ openPanelOnActionClick: false })
-    .catch((error) => console.error(error));
+    .catch((error) => console.warn('setPanelBehavior failed:', error));
 
 // 監聽來自各頁面的訊息，切換開啟不同介面模式
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
@@ -33,7 +33,7 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             .setPanelBehavior({ openPanelOnActionClick: false })
             .then(() => sendResponse({ success: true }))
             .catch((error) => {
-                console.error('切換 Popup 失敗:', error);
+                console.warn('切換 Popup 失敗:', error);
                 sendResponse({ success: false, error: error.message });
             });
         return true;

@@ -67,7 +67,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
             // 舊版設定可能缺少新欄位，這裡用預設值補齊，避免 undefined。
             set({ settings: { ...DEFAULT_SETTINGS, ...settings } });
         } catch (error) {
-            console.error('Failed to load settings:', error);
+            console.warn('Failed to load settings:', error);
         }
     },
 
@@ -76,7 +76,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
             const syncUsage = await storageService.getSyncStorageUsage();
             set({ syncUsage });
         } catch (error) {
-            console.error('Failed to load sync usage:', error);
+            console.warn('Failed to load sync usage:', error);
         }
     },
 
@@ -85,7 +85,7 @@ export const useNotesStore = create<NotesState>((set, get) => ({
             const unsyncedNoteIds = await storageService.getUnsyncedNoteIds();
             set({ unsyncedNoteIds });
         } catch (error) {
-            console.error('Failed to load unsynced note IDs:', error);
+            console.warn('Failed to load unsynced note IDs:', error);
         }
     },
 
