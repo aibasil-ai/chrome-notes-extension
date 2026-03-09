@@ -38,6 +38,11 @@ const PopupApp: React.FC = () => {
         loadSettings();
     }, []);
 
+    // 切換編輯目標（A -> B 或進入新建）時，重置 autosave 錯誤提示去重狀態
+    useEffect(() => {
+        hasShownAutoSaveErrorRef.current = false;
+    }, [selectedNoteId, isCreating]);
+
     const handleCreateNote = () => {
         setIsCreating(true);
         selectNote(null);

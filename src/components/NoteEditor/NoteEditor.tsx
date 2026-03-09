@@ -33,6 +33,34 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
     const [capturePageContext, setCapturePageContext] = useState(capturePageByDefault);
     const [shouldRefreshPageContext, setShouldRefreshPageContext] = useState(false);
 
+    const areTagsEqual = (a: string[], b: string[]): boolean => {
+        if (a.length !== b.length) return false;
+        return a.every((tag, i) => tag === b[i]);
+    };
+
+    // 既有筆記的 autosave 僅在有實際異動時才觸發，避免無變更時跳提示。
+    const hasExistingNoteChanges = (): boolean => {
+        if (!note) return true;
+
+        if (title !== note.title) return true;
+        if (content !== note.content) return true;
+        if (!areTagsEqual(tags, note.tags)) return true;
+        if (editMode !== note.editMode) return true;
+
+        // 取消記錄網頁：等同移除原有 pageContext
+        if (!capturePageContext) {
+            return note.pageContext !== undefined;
+        }
+
+        // 開啟記錄網頁 + 原本沒有 pageContext：需要建立
+        if (!note.pageContext) return true;
+
+        // 使用者勾選「儲存時更新為目前分頁網址」視為需要更新
+        if (shouldRefreshPageContext) return true;
+
+        return false;
+    };
+
     useEffect(() => {
         if (note) {
             setTitle(note.title);
@@ -137,12 +165,20 @@ export const NoteEditor: React.FC<NoteEditorProps> = ({
         
         // 如果是新建筆記，且標題與內容皆為空，則不自動儲存
         if (!note && !title.trim() && !content.trim()) return;
+        if (note && !hasExistingNoteChanges()) return;
 
         const savedNote = await buildNote();
         onAutoSave(savedNote);
     };
 
-    useAutoSave(handleAutoSave, autoSaveInterval, [title, content, tags, editMode]);
+    useAutoSave(handleAutoSave, autoSaveInterval, [
+        title,
+        content,
+        tags,
+        editMode,
+        capturePageContext,
+        shouldRefreshPageContext,
+    ]);
 
     return (
         <div className="flex flex-col h-full p-4 space-y-3">

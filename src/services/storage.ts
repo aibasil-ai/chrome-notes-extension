@@ -55,12 +55,19 @@ export class StorageService {
 
         // 2. Sync 96KB 滿載阻擋
         if (bytesInUse >= SYNC_BLOCK_LIMIT_BYTES) {
-            if (settings.allowLocalSaveWhenSyncFull) {
-                await chrome.storage.local.set({ notes });
-                await this.refreshUnsyncedNoteIds(notes);
-                throw new Error(SYNC_CAPACITY_FULL_LOCAL_ONLY);
-            } else {
-                throw new Error(SYNC_CAPACITY_FULL_BLOCKED);
+            const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+            const existsInSync = syncedNotes.some((n) => n.id === note.id);
+
+            // 若編輯的是既有 synced 筆記，允許進入後續同 ID 替換流程。
+            // 這樣在內容縮小或可放入時，仍有機會維持同步，不會直接降級成本機。
+            if (!existsInSync) {
+                if (settings.allowLocalSaveWhenSyncFull) {
+                    await chrome.storage.local.set({ notes });
+                    await this.refreshUnsyncedNoteIds(notes);
+                    throw new Error(SYNC_CAPACITY_FULL_LOCAL_ONLY);
+                } else {
+                    throw new Error(SYNC_CAPACITY_FULL_BLOCKED);
+                }
             }
         }
 

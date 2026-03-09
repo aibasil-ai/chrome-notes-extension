@@ -56,6 +56,11 @@ const WindowApp: React.FC = () => {
         loadSyncUsage();
     }, []);
 
+    // 切換編輯目標（A -> B 或進入新建）時，重置 autosave 錯誤提示去重狀態
+    useEffect(() => {
+        hasShownAutoSaveErrorRef.current = false;
+    }, [selectedNoteId, isCreating]);
+
     // 拖曳分隔線事件處理
     const handleMouseDown = useCallback((e: React.MouseEvent) => {
         e.preventDefault();
