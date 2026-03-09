@@ -8,7 +8,11 @@ import { Button } from '../components/shared';
 import { SearchBar } from '../components/SearchBar/SearchBar';
 import { useSearch } from '../hooks/useSearch';
 import type { Note } from '../types/note';
-import { SYNC_CAPACITY_FULL_BLOCKED, SYNC_CAPACITY_FULL_LOCAL_ONLY } from '../services/storage';
+import {
+    NOTE_SIZE_EXCEEDED,
+    SYNC_CAPACITY_FULL_BLOCKED,
+    SYNC_CAPACITY_FULL_LOCAL_ONLY,
+} from '../services/storage';
 import '../index.css';
 
 const PopupApp: React.FC = () => {
@@ -91,8 +95,17 @@ const PopupApp: React.FC = () => {
             }
             hasShownAutoSaveErrorRef.current = false;
         } catch (error) {
-            console.warn('自動儲存失敗:', error);
             const message = error instanceof Error ? error.message : SYNC_CAPACITY_FULL_BLOCKED;
+            const isExpectedAutoSaveBlock =
+                error instanceof Error &&
+                (
+                    error.message === NOTE_SIZE_EXCEEDED ||
+                    error.message === SYNC_CAPACITY_FULL_BLOCKED ||
+                    error.message === SYNC_CAPACITY_FULL_LOCAL_ONLY
+                );
+            if (!isExpectedAutoSaveBlock) {
+                console.error('自動儲存發生非預期錯誤:', error);
+            }
             if (!hasShownAutoSaveErrorRef.current) {
                 alert(message);
                 hasShownAutoSaveErrorRef.current = true;
@@ -116,7 +129,7 @@ const PopupApp: React.FC = () => {
             })
             .then(() => window.close())
             .catch((err) => {
-                console.error('開啟側邊欄失敗:', err);
+                console.warn('開啟側邊欄失敗:', err);
                 window.close();
             });
     };

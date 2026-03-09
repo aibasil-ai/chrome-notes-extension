@@ -9,7 +9,11 @@ import { Settings } from '../components/Settings';
 import { Button, SyncStorageStatus } from '../components/shared';
 import { useSearch } from '../hooks/useSearch';
 import type { Note } from '../types/note';
-import { SYNC_CAPACITY_FULL_BLOCKED, SYNC_CAPACITY_FULL_LOCAL_ONLY } from '../services/storage';
+import {
+    NOTE_SIZE_EXCEEDED,
+    SYNC_CAPACITY_FULL_BLOCKED,
+    SYNC_CAPACITY_FULL_LOCAL_ONLY,
+} from '../services/storage';
 import '../index.css';
 
 const WindowApp: React.FC = () => {
@@ -147,8 +151,17 @@ const WindowApp: React.FC = () => {
             }
             hasShownAutoSaveErrorRef.current = false;
         } catch (error) {
-            console.warn('自動儲存失敗:', error);
             const message = error instanceof Error ? error.message : SYNC_CAPACITY_FULL_BLOCKED;
+            const isExpectedAutoSaveBlock =
+                error instanceof Error &&
+                (
+                    error.message === NOTE_SIZE_EXCEEDED ||
+                    error.message === SYNC_CAPACITY_FULL_BLOCKED ||
+                    error.message === SYNC_CAPACITY_FULL_LOCAL_ONLY
+                );
+            if (!isExpectedAutoSaveBlock) {
+                console.error('自動儲存發生非預期錯誤:', error);
+            }
             if (!hasShownAutoSaveErrorRef.current) {
                 alert(message);
                 hasShownAutoSaveErrorRef.current = true;
