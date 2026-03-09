@@ -88,7 +88,7 @@
   - 調整或移除 `MAX_SYNC_NOTES`。
 - `src/store/useNotesStore.ts`
   - 保留現有 warning/error 行為，確認 local-only 提示時機一致。
-- `docs/storage-rules.md`
+- `docs/plans/2026-03-09-storage-rules.md`
   - 更新規則描述（淘汰責任與遞補觸發點）。
 
 ## 10. 風險與對策
