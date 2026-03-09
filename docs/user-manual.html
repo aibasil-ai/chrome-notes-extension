@@ -1,0 +1,743 @@
+<!doctype html>
+<html lang="zh-Hant">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>輕筆記使用者操作手冊</title>
+  <meta name="description"
+    content="輕筆記 Chrome 擴充功能完整使用者操作手冊（Chrome 線上應用程式商店安裝版），包含首次啟用、三種模式、筆記管理、同步容量規則、匯出匯入與疑難排解。" />
+  <link rel="icon" type="image/png" href="favicon.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --line: #d4d4d8;
+      --text: #09090b;
+      --muted: #3f3f46;
+      --cta: #ec4899;
+      --ink: #18181b;
+      --max: 1180px;
+      --tip-bg: #ecfdf3;
+      --tip-text: #166534;
+      --warn-bg: #fff7ed;
+      --warn-text: #9a3412;
+      --danger-bg: #fff1f2;
+      --danger-text: #9f1239;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Inter", sans-serif;
+      color: var(--text);
+      background: var(--bg);
+      line-height: 1.5;
+      padding: 1rem;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .page {
+      width: min(var(--max), 100%);
+      margin: 0 auto;
+    }
+
+    .frame {
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .hero {
+      padding: 1.4rem 1.25rem;
+    }
+
+    .swiss-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+    }
+
+    .hero-copy {
+      grid-column: 1 / 9;
+      border-top: 2px solid var(--ink);
+      padding-top: 0.8rem;
+    }
+
+    .kicker {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.65rem;
+    }
+
+    .hero-title {
+      font-size: clamp(1.8rem, 5vw, 3.4rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.03em;
+      max-width: 20ch;
+    }
+
+    .hero-desc {
+      margin-top: 0.9rem;
+      font-size: clamp(1rem, 1.8vw, 1.2rem);
+      color: var(--muted);
+      max-width: 64ch;
+    }
+
+    .hero-actions {
+      margin-top: 1.1rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--ink);
+      padding: 0.58rem 0.9rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 180ms ease-out, background-color 180ms ease-out, color 180ms ease-out;
+    }
+
+    .btn-primary {
+      background: var(--cta);
+      color: #ffffff;
+      border-color: var(--cta);
+    }
+
+    .btn-secondary {
+      background: #ffffff;
+      color: var(--ink);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn:focus-visible {
+      outline: 3px solid #0ea5e9;
+      outline-offset: 2px;
+    }
+
+    .hero-meta {
+      grid-column: 9 / 13;
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .meta-card {
+      border: 1px solid var(--line);
+      padding: 0.85rem;
+    }
+
+    .meta-card dt {
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      margin-bottom: 0.28rem;
+    }
+
+    .meta-card dd {
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+
+    .section {
+      margin-top: 1rem;
+      padding: 1.2rem 1.25rem;
+    }
+
+    .section-title {
+      font-size: clamp(1.2rem, 2vw, 1.6rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.7rem;
+    }
+
+    .section-note {
+      color: var(--muted);
+      max-width: 70ch;
+      margin-bottom: 1rem;
+    }
+
+    .manual-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 0.75rem;
+      align-items: start;
+    }
+
+    .toc-panel {
+      grid-column: 1 / 4;
+      border: 1px solid var(--line);
+      padding: 0.9rem;
+      position: sticky;
+      top: 0.9rem;
+    }
+
+    .toc-panel h3 {
+      font-size: 0.86rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.55rem;
+    }
+
+    .toc-panel ol {
+      padding-left: 1.15rem;
+      color: var(--muted);
+      display: grid;
+      gap: 0.42rem;
+      font-size: 0.92rem;
+    }
+
+    .toc-panel li a:hover {
+      color: var(--ink);
+      text-decoration: underline;
+    }
+
+    .content-panel {
+      grid-column: 4 / 13;
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .block {
+      border: 1px solid var(--line);
+      padding: 0.95rem;
+    }
+
+    .block h3 {
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.55rem;
+    }
+
+    .block h4 {
+      font-size: 0.92rem;
+      font-weight: 700;
+      margin-top: 0.8rem;
+      margin-bottom: 0.35rem;
+      letter-spacing: 0.01em;
+    }
+
+    .block p {
+      color: var(--muted);
+      font-size: 0.96rem;
+      margin-top: 0.35rem;
+    }
+
+    .block ul,
+    .block ol {
+      margin-top: 0.45rem;
+      padding-left: 1.2rem;
+      color: var(--muted);
+      display: grid;
+      gap: 0.32rem;
+      font-size: 0.95rem;
+    }
+
+    .block li {
+      line-height: 1.48;
+    }
+
+    .block code {
+      font-family: "SFMono-Regular", Menlo, Consolas, monospace;
+      font-size: 0.86em;
+      border: 1px solid var(--line);
+      padding: 0.05rem 0.28rem;
+      color: var(--ink);
+      background: #fafafa;
+    }
+
+    .callout {
+      border: 1px solid var(--line);
+      padding: 0.72rem 0.78rem;
+      margin-top: 0.65rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+
+    .callout.tip {
+      background: var(--tip-bg);
+      color: var(--tip-text);
+      border-color: #bbf7d0;
+    }
+
+    .callout.warn {
+      background: var(--warn-bg);
+      color: var(--warn-text);
+      border-color: #fed7aa;
+    }
+
+    .callout.danger {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      border-color: #fecdd3;
+    }
+
+    .rule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 0.55rem;
+      font-size: 0.9rem;
+    }
+
+    .rule-table th,
+    .rule-table td {
+      border: 1px solid var(--line);
+      padding: 0.52rem 0.58rem;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .rule-table th {
+      background: #f4f4f5;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      font-size: 0.84rem;
+      text-transform: uppercase;
+      color: #27272a;
+    }
+
+    .faq-q {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--ink);
+      margin-top: 0.7rem;
+      margin-bottom: 0.2rem;
+    }
+
+    .cta {
+      margin-top: 1rem;
+      padding: 1.2rem 1.25rem;
+      background: var(--ink);
+      color: #f4f4f5;
+    }
+
+    .cta-grid {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      gap: 1rem;
+      align-items: center;
+    }
+
+    .cta-copy {
+      grid-column: 1 / 9;
+    }
+
+    .cta-title {
+      font-size: clamp(1.25rem, 2.2vw, 1.9rem);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 0.55rem;
+    }
+
+    .cta-copy p {
+      color: #d4d4d8;
+      max-width: 58ch;
+    }
+
+    .cta-link {
+      grid-column: 9 / 13;
+      justify-self: end;
+    }
+
+    .cta-link .btn {
+      border-color: #ffffff;
+      color: #ffffff;
+      background: transparent;
+    }
+
+    .cta-link .btn:hover {
+      background: #ffffff;
+      color: #111827;
+    }
+
+    .footer {
+      margin-top: 1rem;
+      padding: 1rem 1.25rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    @media (max-width: 1024px) {
+      .hero-copy {
+        grid-column: 1 / 13;
+      }
+
+      .hero-meta {
+        grid-column: 1 / 13;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .toc-panel {
+        grid-column: 1 / 13;
+        position: static;
+      }
+
+      .content-panel {
+        grid-column: 1 / 13;
+      }
+
+      .cta-copy,
+      .cta-link {
+        grid-column: 1 / 13;
+      }
+
+      .cta-link {
+        justify-self: start;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 0.65rem;
+      }
+
+      .hero,
+      .section,
+      .cta,
+      .footer {
+        padding: 0.9rem;
+      }
+
+      .hero-meta {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation: none !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <main>
+      <section class="hero frame" aria-labelledby="hero-title">
+        <div class="swiss-grid">
+          <div class="hero-copy">
+            <p class="kicker">User Manual</p>
+            <h1 id="hero-title" class="hero-title">輕筆記使用者操作手冊</h1>
+            <p class="hero-desc">
+              本手冊以「從 Chrome 線上應用程式商店安裝後」的使用情境撰寫，帶你完成首次啟用、
+              三種模式切換、筆記編輯與自動儲存、同步容量管理、匯出匯入與常見問題排查。
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="#manual-start">快速開始</a>
+              <a class="btn btn-secondary" href="#sync-rules">同步容量規則</a>
+              <a class="btn btn-secondary" href="./index.html">返回文件首頁</a>
+            </div>
+          </div>
+
+          <dl class="hero-meta" aria-label="手冊摘要">
+            <div class="meta-card">
+              <dt>安裝來源</dt>
+              <dd>Chrome 線上應用程式商店</dd>
+            </div>
+            <div class="meta-card">
+              <dt>適用模式</dt>
+              <dd>Popup / Sidebar / 獨立視窗</dd>
+            </div>
+            <div class="meta-card">
+              <dt>重點主題</dt>
+              <dd>同步容量、備份、疑難排解</dd>
+            </div>
+          </dl>
+        </div>
+      </section>
+
+      <section class="section frame" aria-labelledby="manual-start">
+        <h2 id="manual-start" class="section-title">操作導覽</h2>
+        <p class="section-note">
+          建議先依照左側目錄完成「快速開始」與「首次啟用檢查」，再進入編輯流程與同步規則。
+          若你已經在使用中遇到問題，可直接跳到 FAQ 或疑難排解。
+        </p>
+
+        <div class="manual-grid">
+          <aside class="toc-panel" aria-label="章節目錄">
+            <h3>章節目錄</h3>
+            <ol>
+              <li><a href="#quick-start">1. 快速開始</a></li>
+              <li><a href="#ui-modes">2. 三種介面模式</a></li>
+              <li><a href="#note-flow">3. 建立與編輯筆記</a></li>
+              <li><a href="#search-tags">4. 搜尋與標籤管理</a></li>
+              <li><a href="#sync-rules">5. 同步與容量規則</a></li>
+              <li><a href="#backup">6. 匯出與匯入</a></li>
+              <li><a href="#faq">7. 常見問題</a></li>
+              <li><a href="#troubleshooting">8. 疑難排解</a></li>
+            </ol>
+          </aside>
+
+          <div class="content-panel">
+            <article id="quick-start" class="block" aria-labelledby="quick-start-title">
+              <h3 id="quick-start-title">1. 快速開始（商店安裝版）</h3>
+              <h4>從 Chrome 線上應用程式商店安裝</h4>
+              <ol>
+                <li>前往 <a href="https://chromewebstore.google.com/" target="_blank" rel="noreferrer noopener">Chrome 線上應用程式商店</a>。</li>
+                <li>搜尋 <code>輕筆記</code>，進入擴充功能頁面後按「加到 Chrome」。</li>
+                <li>在權限視窗確認後按「新增擴充功能」。</li>
+                <li>安裝完成後，點擊瀏覽器右上角「擴充功能」圖示，將輕筆記釘選到工具列。</li>
+                <li>點一下輕筆記圖示，開啟 Popup 並建立第一則筆記。</li>
+              </ol>
+              <h4>首次啟用建議檢查</h4>
+              <ol>
+                <li>開啟設定，確認「同步容量滿載時允許僅儲存本機」是否符合你的策略。</li>
+                <li>確認自動儲存間隔（預設 <code>3000ms</code>）。</li>
+                <li>建立一則測試筆記，確認可正常儲存與搜尋。</li>
+              </ol>
+              <div class="callout tip">
+                透過 Chrome 商店安裝的版本通常由 Chrome 自動更新；若你要手動檢查更新，可到 <code>chrome://extensions/</code> 按「更新」。
+              </div>
+            </article>
+
+            <article id="ui-modes" class="block" aria-labelledby="ui-modes-title">
+              <h3 id="ui-modes-title">2. 三種介面模式</h3>
+              <h4>Popup 模式（快速記錄）</h4>
+              <ul>
+                <li>適合快速新增、查看與修改短筆記。</li>
+                <li>可直接切換到 Sidebar 或獨立視窗。</li>
+              </ul>
+              <h4>Sidebar 模式（邊看邊記）</h4>
+              <ul>
+                <li>在瀏覽網頁時持續筆記，不中斷原頁面閱讀。</li>
+                <li>適合研究整理、摘錄重點與即時補充。</li>
+              </ul>
+              <h4>獨立視窗模式（深度整理）</h4>
+              <ul>
+                <li>提供較大編輯空間，適合長文筆記與多段整理。</li>
+                <li>可拖曳調整左側筆記清單與右側編輯區寬度。</li>
+              </ul>
+            </article>
+
+            <article id="note-flow" class="block" aria-labelledby="note-flow-title">
+              <h3 id="note-flow-title">3. 建立與編輯筆記</h3>
+              <h4>建立新筆記</h4>
+              <ol>
+                <li>按「新增筆記」。</li>
+                <li>輸入標題、內容與標籤。</li>
+                <li>選擇「純文字」或「Markdown」。</li>
+                <li>按「儲存」完成。</li>
+              </ol>
+              <h4>自動儲存規則</h4>
+              <ul>
+                <li>內容變更後，系統依設定間隔自動儲存。</li>
+                <li>新筆記若標題與內容都為空，不會觸發自動儲存。</li>
+                <li>遇到容量或大小限制時，會顯示對應提示訊息。</li>
+              </ul>
+              <h4>記錄網頁資訊</h4>
+              <ul>
+                <li>勾選「記錄網頁」可保存當下分頁網址與標題。</li>
+                <li>編輯既有筆記時可勾選「儲存時更新為目前分頁網址」。</li>
+              </ul>
+              <div class="callout warn">
+                單筆筆記若超過 <code>7,800 bytes</code> 會被阻擋儲存。建議改成「摘要 + 外部連結」或拆分成多則筆記。
+              </div>
+            </article>
+
+            <article id="search-tags" class="block" aria-labelledby="search-tags-title">
+              <h3 id="search-tags-title">4. 搜尋與標籤管理</h3>
+              <ul>
+                <li>搜尋列會同時比對標題與內容關鍵字。</li>
+                <li>可搭配多標籤過濾，快速縮小範圍。</li>
+                <li>建議採固定標籤命名（例如：<code>研究</code>、<code>待辦</code>、<code>已驗證</code>）。</li>
+              </ul>
+
+              <table class="rule-table" aria-label="標籤策略">
+                <thead>
+                  <tr>
+                    <th>使用情境</th>
+                    <th>建議標籤策略</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>長期專題追蹤</td>
+                    <td>主題標籤 + 階段標籤（例如 <code>專案A</code> + <code>草稿</code>）</td>
+                  </tr>
+                  <tr>
+                    <td>臨時紀錄</td>
+                    <td>先統一標為 <code>inbox</code>，每週整理歸類</td>
+                  </tr>
+                  <tr>
+                    <td>可行動任務</td>
+                    <td>加入 <code>todo</code> 或時間標籤（例如 <code>2026-Q2</code>）</td>
+                  </tr>
+                </tbody>
+              </table>
+            </article>
+
+            <article id="sync-rules" class="block" aria-labelledby="sync-rules-title">
+              <h3 id="sync-rules-title">5. 同步與容量規則</h3>
+              <p>
+                輕筆記採 <code>chrome.storage.local</code> + <code>chrome.storage.sync</code> 混合策略：
+                先保護當前資料，再依容量規則嘗試同步。
+              </p>
+
+              <table class="rule-table" aria-label="同步容量規則">
+                <thead>
+                  <tr>
+                    <th>項目</th>
+                    <th>限制值</th>
+                    <th>說明</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>單筆同步上限</td>
+                    <td><code>7,800 bytes</code></td>
+                    <td>超過就直接阻擋儲存。</td>
+                  </tr>
+                  <tr>
+                    <td>同步容量保護線</td>
+                    <td><code>96 KB (98304 bytes)</code></td>
+                    <td>超過後依設定決定阻擋或改為僅存本機。</td>
+                  </tr>
+                  <tr>
+                    <td>同步筆數防呆上限</td>
+                    <td><code>512</code></td>
+                    <td>僅作保護值，避免極端狀況。</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4>「同步容量滿載時允許僅儲存本機」開關差異</h4>
+              <ul>
+                <li><strong>開啟：</strong>無法同步時仍可存本機，筆記會標示為未同步。</li>
+                <li><strong>關閉：</strong>無法同步時直接阻擋，這次變更不會儲存。</li>
+              </ul>
+
+              <div class="callout danger">
+                若你高度依賴跨裝置一致性，建議維持「關閉」。若你重視不中斷記錄，可開啟並定期清理同步空間。
+              </div>
+            </article>
+
+            <article id="backup" class="block" aria-labelledby="backup-title">
+              <h3 id="backup-title">6. 匯出與匯入</h3>
+              <h4>匯出 JSON</h4>
+              <ol>
+                <li>打開設定面板。</li>
+                <li>點擊「匯出 JSON」。</li>
+                <li>將檔案保存到雲端硬碟或版本化備份資料夾。</li>
+              </ol>
+
+              <h4>匯入 JSON</h4>
+              <ol>
+                <li>在設定中按「選擇檔案」。</li>
+                <li>選取已備份的 JSON 檔。</li>
+                <li>系統會合併匯入，已存在 ID 的筆記不重複新增。</li>
+              </ol>
+
+              <div class="callout warn">
+                若同步空間接近上限，大量匯入可能觸發容量阻擋。建議先匯出再整理舊筆記。
+              </div>
+            </article>
+
+            <article id="faq" class="block" aria-labelledby="faq-title">
+              <h3 id="faq-title">7. 常見問題</h3>
+              <p class="faq-q">Q1. 為什麼筆記會顯示「未同步」？</p>
+              <p>通常代表該筆目前只存在本機，常見原因是同步空間不足或筆記超過單筆大小上限。</p>
+
+              <p class="faq-q">Q2. 關閉「僅儲存本機」後，既有本機筆記會不見嗎？</p>
+              <p>不會。既有本機筆記會保留；但之後若新變更無法同步，就會直接阻擋儲存。</p>
+
+              <p class="faq-q">Q3. 為什麼使用量有時會顯示高於 96KB？</p>
+              <p>96KB 是應用層保護線，用來提前防止接近 Chrome 原生配額時的不確定行為。</p>
+            </article>
+
+            <article id="troubleshooting" class="block" aria-labelledby="troubleshooting-title">
+              <h3 id="troubleshooting-title">8. 疑難排解</h3>
+              <h4>情境：儲存時出現容量提示</h4>
+              <ol>
+                <li>到設定頁檢查同步使用量是否逼近或超過 96KB。</li>
+                <li>評估是否暫時開啟「同步容量滿載時允許僅儲存本機」。</li>
+                <li>刪除大型舊筆記，或先匯出後再清理。</li>
+              </ol>
+
+              <h4>情境：長筆記常遇到 7,800B 限制</h4>
+              <ol>
+                <li>改為主筆記 + 子筆記結構（摘要、細節、參考資料）。</li>
+                <li>大型原文改放外部文件，筆記內保留摘要與連結。</li>
+              </ol>
+
+              <h4>情境：跨裝置看不到最新筆記</h4>
+              <ol>
+                <li>在來源裝置儲存後先等待幾秒。</li>
+                <li>在目標裝置開啟擴充功能檢查該筆是否未同步。</li>
+                <li>若長時間不同步，回來源裝置檢查容量與錯誤提示。</li>
+              </ol>
+
+              <div class="callout tip">
+                建議在大量整理前先匯出一份 JSON 備份，能大幅降低誤刪或衝突風險。
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="cta frame" aria-labelledby="next-step-title">
+        <div class="cta-grid">
+          <div class="cta-copy">
+            <h2 id="next-step-title" class="cta-title">下一步：建立你的第一套穩定筆記流程</h2>
+            <p>
+              建議先建立 3 個固定標籤（例如：研究、待辦、已驗證），並在每次長篇整理前先做 JSON 備份。
+              這能讓搜尋、同步與回顧都更穩定。
+            </p>
+          </div>
+          <div class="cta-link">
+            <a class="btn" href="./index.html">回到文件首頁</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer class="footer frame">
+      輕筆記操作手冊 · 最後更新：2026-03-09
+    </footer>
+  </div>
+</body>
+
+</html>

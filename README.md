@@ -16,8 +16,22 @@
   - **標籤系統**：輕鬆為筆記加上標籤，尋找更方便。
   - **智慧搜尋列**：標籤過濾加上關鍵字，與各功能按鈕完美整合在一行，不壓縮編輯空間。
 - **強大且安全的同步機制**
-  - **Sync 分塊儲存與容量保護**：以 Chunk (區塊分流) 寫入 `chrome.storage.sync`，並套用單筆 7,800 bytes、總量 96KB、最多 50 筆的同步限制，避免超額寫入。
+  - **Sync 分塊儲存與容量保護**：以 Chunk (區塊分流) 寫入 `chrome.storage.sync`，並套用單筆 7,800 bytes、總量 96KB、最多 512 筆（防呆上限）的同步限制，避免超額寫入。
   - **手動匯出/匯入**：支援 JSON 格式檔案層級雙向匯出與備份。
+
+## 📚 文件與使用手冊
+
+- 產品文件首頁：`docs/index.html`
+- 使用者操作手冊：`docs/user-manual.html`
+- 線上版本（若已部署 GitHub Pages）：`https://aibasil.github.io/chrome-notes-extension/`
+
+本機預覽文件：
+
+```bash
+python3 -m http.server 8000 --directory docs
+```
+
+啟動後開啟 `http://127.0.0.1:8000/`。
 
 ## 🛠️ 開發
 
