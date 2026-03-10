@@ -55,7 +55,7 @@ export class StorageService {
 
         // 2. Sync 96KB 滿載阻擋
         if (bytesInUse >= SYNC_BLOCK_LIMIT_BYTES) {
-            const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+            const syncedNotes = await this.getSyncedNotes();
             const existsInSync = syncedNotes.some((n) => n.id === note.id);
 
             // 若編輯的是既有 synced 筆記，允許進入後續同 ID 替換流程。
@@ -95,7 +95,7 @@ export class StorageService {
         await chrome.storage.local.set({ notes: filteredNotes });
 
         // 從 sync 中移除該筆
-        const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+        const syncedNotes = await this.getSyncedNotes();
         const syncedWithout = syncedNotes.filter((n) => n.id !== noteId);
         await this.writeChunksToSync(syncedWithout);
 
@@ -109,7 +109,7 @@ export class StorageService {
     }
 
     // 從 sync storage 讀取目前同步中的筆記資料（可能是舊版本）
-    private async getSyncedNotesFromSyncStorage(): Promise<Note[]> {
+    async getSyncedNotes(): Promise<Note[]> {
         try {
             const syncData = await chrome.storage.sync.get(null) as Record<string, string>;
             const chunkCount = parseInt(syncData['notes_chunk_count'] || '0', 10);
@@ -150,7 +150,7 @@ export class StorageService {
 
     // 依目前 sync 內容重新計算本機的未同步清單
     private async refreshUnsyncedNoteIds(localNotes: Note[]): Promise<void> {
-        const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+        const syncedNotes = await this.getSyncedNotes();
         const unsyncedIds = this.calculateUnsyncedNoteIds(localNotes, syncedNotes);
         await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
     }
@@ -159,7 +159,7 @@ export class StorageService {
     // 回傳 true 表示成功同步，false 表示無法放入
     private async trySyncSingleNote(note: Note, allLocalNotes: Note[]): Promise<boolean> {
         try {
-            const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+            const syncedNotes = await this.getSyncedNotes();
             const existsInSync = syncedNotes.some((n) => n.id === note.id);
 
             // 建構新的 sync 清單：替換或新增目標筆記
@@ -203,7 +203,7 @@ export class StorageService {
             return true;
         } catch (error) {
             console.warn('Failed to sync single note:', error);
-            const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+            const syncedNotes = await this.getSyncedNotes();
             const unsyncedIds = this.calculateUnsyncedNoteIds(allLocalNotes, syncedNotes);
             await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
             return false;
@@ -214,7 +214,7 @@ export class StorageService {
     // 觸發時機：刪除筆記後、擴充功能啟動時、手動重試同步
     async refillSync(allLocalNotes: Note[]): Promise<void> {
         try {
-            const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+            const syncedNotes = await this.getSyncedNotes();
             const syncedIds = new Set(syncedNotes.map((n) => n.id));
 
             // 候選：不在 sync 中且單筆 ≤ 7800B
@@ -253,7 +253,7 @@ export class StorageService {
             await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
         } catch (error) {
             console.warn('Failed to refill sync storage:', error);
-            const syncedNotes = await this.getSyncedNotesFromSyncStorage();
+            const syncedNotes = await this.getSyncedNotes();
             const unsyncedIds = this.calculateUnsyncedNoteIds(allLocalNotes, syncedNotes);
             await chrome.storage.local.set({ unsyncedNoteIds: unsyncedIds });
         }
@@ -352,7 +352,58 @@ export class StorageService {
             return [];
         }
     }
+
+
+    // 將遠端 sync storage 的資料向下合併至 local
+    // 回傳 true 表示 local 有因為這此合併而發生異動
+    async syncDownFromSyncStorage(): Promise<boolean> {
+        try {
+            const localNotes = await this.getAllNotes();
+            const syncedNotes = await this.getSyncedNotes();
+
+            if (syncedNotes.length === 0) {
+                return false;
+            }
+
+            let hasChanges = false;
+            const newLocalNotes = [...localNotes];
+            const localNoteIds = new Set(localNotes.map(n => n.id));
+
+            for (const syncNote of syncedNotes) {
+                const localIndex = newLocalNotes.findIndex(n => n.id === syncNote.id);
+
+                if (localIndex >= 0) {
+                    // 已存在本機：比較 updatedAt，若 sync 的較新則覆蓋
+                    if (syncNote.updatedAt > newLocalNotes[localIndex].updatedAt) {
+                        newLocalNotes[localIndex] = syncNote;
+                        hasChanges = true;
+                    }
+                } else {
+                    // 不存在本機：新增
+                    newLocalNotes.unshift(syncNote);
+                    localNoteIds.add(syncNote.id);
+                    hasChanges = true;
+                }
+            }
+
+            // 若在其他裝置刪除，我們是否要同步刪除本機的已同步檔案？
+            // 為了不遺失重要的本機修改資料，且本系統為單純的「補推」，這裡暫不主動刪除本機獨有筆記。
+
+            if (hasChanges) {
+                // 將筆記依照更新時間排序（新到舊）
+                newLocalNotes.sort((a, b) => b.updatedAt - a.updatedAt);
+                await chrome.storage.local.set({ notes: newLocalNotes });
+
+                // 重新計算 unsynced
+                await this.refreshUnsyncedNoteIds(newLocalNotes);
+            }
+
+            return hasChanges;
+        } catch (error) {
+            console.error('Failed to sync down notes:', error);
+            return false;
+        }
+    }
 }
 
 export const storageService = new StorageService();
-

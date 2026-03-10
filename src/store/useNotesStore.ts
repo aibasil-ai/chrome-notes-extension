@@ -50,6 +50,8 @@ export const useNotesStore = create<NotesState>((set, get) => ({
     loadNotes: async () => {
         set({ isLoading: true });
         try {
+            // 在讀取本機筆記之前，先從雲端同步最新版本的筆記下來
+            await storageService.syncDownFromSyncStorage();
             const notes = await storageService.getAllNotes();
             set({ notes, isLoading: false });
             // 啟動時觸發遞補，嘗試將 unsynced 筆記補回 sync

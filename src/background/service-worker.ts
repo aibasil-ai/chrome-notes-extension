@@ -1,4 +1,5 @@
 // 輕筆記擴充套件 — Background Service Worker
+import { storageService } from '../services/storage';
 
 chrome.runtime.onInstalled.addListener(() => {
     console.log('輕筆記擴充套件已安裝 (Lightweight Notes Extension installed)');
@@ -64,5 +65,22 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
             }
         });
         return true;
+    }
+});
+
+// 監聽 sync storage 的變更，從雲端拉取最新的筆記回本機
+chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'sync') {
+        const hasNotesChunkChange = Object.keys(changes).some(key => key.startsWith('notes_chunk_'));
+        if (hasNotesChunkChange) {
+            console.log('偵測到 sync storage 變更，嘗試向下同步筆記...');
+            storageService.syncDownFromSyncStorage().then(hasChanges => {
+                if (hasChanges) {
+                    console.log('已從 sync 成功同步筆記至 local！');
+                }
+            }).catch(error => {
+                console.error('背景向下同步筆記失敗:', error);
+            });
+        }
     }
 });
