@@ -1,15 +1,19 @@
 {
   "name": "chrome-notes-extension",
   "private": true,
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "check:background-manifest": "node scripts/check-background-manifest.mjs",
     "lint": "eslint .",
     "preview": "vite preview",
     "assets:chrome-store": "node scripts/generate-chrome-store-assets.mjs",
-    "assets:chrome-store:marketing": "node scripts/generate-chrome-store-assets-marketing.mjs"
+    "assets:chrome-store:marketing": "node scripts/generate-chrome-store-assets-marketing.mjs",
+    "test:e2e:popup-window": "node --test --test-reporter=spec tests/e2e/popup-window.spec.mjs",
+    "test:e2e:sidebar-popup": "node --test --test-reporter=spec tests/e2e/sidebar-popup.spec.mjs",
+    "test:e2e": "npm run build && node --test --test-reporter=spec tests/e2e/*.spec.mjs"
   },
   "dependencies": {
     "@types/chrome": "^0.1.37",
