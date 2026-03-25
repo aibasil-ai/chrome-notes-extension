@@ -99,6 +99,10 @@ export class StorageService {
         const syncedWithout = syncedNotes.filter((n) => n.id !== noteId);
         await this.writeChunksToSync(syncedWithout);
 
+        // 從 syncedNoteIds 移除被刪筆記 ID
+        const syncedIds = await this.getSyncedNoteIds();
+        await this.saveSyncedNoteIds(syncedIds.filter((id) => id !== noteId));
+
         // 遞補：從 unsynced 候選中補回可放入的筆記
         await this.refillSync(filteredNotes);
     }
@@ -309,6 +313,10 @@ export class StorageService {
         if (keysToRemove.length > 0) {
             await chrome.storage.sync.remove(keysToRemove);
         }
+
+        // 更新 syncedNoteIds：記錄目前成功寫入 sync 的所有筆記 ID
+        const syncedIds = syncList.map((n) => n.id);
+        await this.saveSyncedNoteIds(syncedIds);
     }
 
     // 取得設定
@@ -353,6 +361,20 @@ export class StorageService {
         }
     }
 
+    // 讀取曾成功寫入 sync 的筆記 ID 清單
+    async getSyncedNoteIds(): Promise<string[]> {
+        try {
+            const result = await chrome.storage.local.get('syncedNoteIds') as { syncedNoteIds?: string[] };
+            return result.syncedNoteIds || [];
+        } catch {
+            return [];
+        }
+    }
+
+    // 儲存曾同步過的筆記 ID 清單
+    private async saveSyncedNoteIds(ids: string[]): Promise<void> {
+        await chrome.storage.local.set({ syncedNoteIds: ids });
+    }
 
     // 將遠端 sync storage 的資料向下合併至 local
     // 回傳 true 表示 local 有因為這此合併而發生異動
@@ -360,15 +382,12 @@ export class StorageService {
         try {
             const localNotes = await this.getAllNotes();
             const syncedNotes = await this.getSyncedNotes();
-
-            if (syncedNotes.length === 0) {
-                return false;
-            }
+            const previousSyncedNoteIds = await this.getSyncedNoteIds();
 
             let hasChanges = false;
             const newLocalNotes = [...localNotes];
-            const localNoteIds = new Set(localNotes.map(n => n.id));
 
+            // --- 階段 1：合併新增 / 更新 ---
             for (const syncNote of syncedNotes) {
                 const localIndex = newLocalNotes.findIndex(n => n.id === syncNote.id);
 
@@ -381,13 +400,30 @@ export class StorageService {
                 } else {
                     // 不存在本機：新增
                     newLocalNotes.unshift(syncNote);
-                    localNoteIds.add(syncNote.id);
                     hasChanges = true;
                 }
             }
 
-            // 若在其他裝置刪除，我們是否要同步刪除本機的已同步檔案？
-            // 為了不遺失重要的本機修改資料，且本系統為單純的「補推」，這裡暫不主動刪除本機獨有筆記。
+            // --- 階段 2：差集刪除 ---
+            // 若筆記曾在 syncedNoteIds（代表曾成功同步過），但目前 sync 中已不存在
+            // → 代表被其他裝置刪除，本機也應同步刪除
+            const currentSyncIds = new Set(syncedNotes.map(n => n.id));
+            const deletedByRemote = previousSyncedNoteIds.filter(id => !currentSyncIds.has(id));
+
+            if (deletedByRemote.length > 0) {
+                const deletedSet = new Set(deletedByRemote);
+                const beforeCount = newLocalNotes.length;
+                const filtered = newLocalNotes.filter(n => !deletedSet.has(n.id));
+                if (filtered.length < beforeCount) {
+                    newLocalNotes.length = 0;
+                    newLocalNotes.push(...filtered);
+                    hasChanges = true;
+                    console.log(`已同步刪除 ${beforeCount - filtered.length} 筆被其他裝置移除的筆記`);
+                }
+            }
+
+            // --- 階段 3：更新 syncedNoteIds 為目前 sync 的 ID 集合 ---
+            await this.saveSyncedNoteIds([...currentSyncIds]);
 
             if (hasChanges) {
                 // 將筆記依照更新時間排序（新到舊）
